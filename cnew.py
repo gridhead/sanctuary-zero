@@ -3,36 +3,34 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit import print_formatted_text, HTML
 
-#cd Projects/sanctuary-zero && source venv/bin/activate && python3 cnew.py -u t0xic0der
 
 session = PromptSession()
-USERLIST = set()
 
 
-async def consumer_handler(websocket, username, chatroom):
+async def consumer_handler(websocket, username, chatroom, servaddr):
     async for recvdata in websocket:
         try:
             recvjson = json.loads(recvdata)
             if recvjson["chatroom"] == chatroom:
                 if recvjson["username"] != username:
-                    print("< [" + str(time.ctime()) + "] | " + recvjson["username"] + " | " + recvjson["mesgtext"])
+                    print("* [" + str(time.ctime()) + "] | " + recvjson["username"] + " | " + recvjson["mesgtext"])
         except Exception as EXPT:
             pass
 
 
-async def producer_handler(websocket, username, chatroom):
-    footelem = HTML("<b><style bg='ansired'>" + username.strip() + "</style></b>@<b><style bg='ansiblue'>" + chatroom + "</style></b> - <b><style bg='ansiblue'>Sanctuary ZERO v15082020</style></b>")
+async def producer_handler(websocket, username, chatroom, servaddr):
+    footelem = HTML("<b><style bg='seagreen'>" + username.strip() + "</style></b>@<b><style bg='seagreen'>" + chatroom + "</style></b> [<b><style bg='seagreen'>Sanctuary ZERO v15082020</style></b> running on <b><style bg='seagreen'>" + servaddr + "</style></b>]")
     while True:
         with patch_stdout():
-            mesgtext = await session.prompt_async("> [" + str(time.ctime()) + "] | " + str(username) + " | ", bottom_toolbar=footelem)
+            mesgtext = await session.prompt_async("* [" + str(time.ctime()) + "] | " + str(username) + " | ", bottom_toolbar=footelem)
         senddata = json.dumps({"username": username, "chatroom": chatroom, "mesgtext": mesgtext})
         await websocket.send(senddata)
 
 
 async def hello(servaddr, username, chatroom):
     async with websockets.connect(servaddr) as websocket:
-        prod = asyncio.get_event_loop().create_task(producer_handler(websocket, str(username), str(chatroom)))
-        cons = asyncio.get_event_loop().create_task(consumer_handler(websocket, str(username), str(chatroom)))
+        prod = asyncio.get_event_loop().create_task(producer_handler(websocket, str(username), str(chatroom), str(servaddr)))
+        cons = asyncio.get_event_loop().create_task(consumer_handler(websocket, str(username), str(chatroom), str(servaddr)))
         await websocket.send(str(username) + " has joined the chatroom.")
         await prod
         await cons
