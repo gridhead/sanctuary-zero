@@ -11,32 +11,32 @@ async def notify_mesej(message):
 
 async def register(websocket):
     USERS.add(websocket)
-    print("> [" + str(time.ctime()) + "] [USERJOIN] User just joined the Sanctuary")
+    print("> [" + str(time.ctime()) + "] [USERJOIN] A user just joined the SNCTRYZERO")
 
 
 async def unregister(websocket):
     USERS.remove(websocket)
-    print("> [" + str(time.ctime()) + "] [USERLEFT] User just left the Sanctuary")
+    print("> [" + str(time.ctime()) + "] [USERLEFT] A user just left the SNCTRYZERO")
 
 
 async def chatroom(websocket, path):
     await register(websocket)
     try:
         async for mesgjson in websocket:
-            print("< [" + str(time.ctime()) + "] " + str(mesgjson))
+            print("< [" + str(time.ctime()) + "] [MESGTEXT] " + str(mesgjson))
             await notify_mesej(mesgjson)
-    finally:
+    except Exception as EXPT:
         await unregister(websocket)
 
 
 def servenow(netpdata="127.0.0.1", chatport="9696"):
     try:
-        print("> [" + str(time.ctime()) + "] [HOLAUSER] Sanctuary was started up on 'ws://" + str(netpdata) + ":" + str(chatport) + "/'")
+        print("> [" + str(time.ctime()) + "] [HOLAUSER] SNCTRYZERO was started up on 'ws://" + str(netpdata) + ":" + str(chatport) + "/'")
         start_server = websockets.serve(chatroom, netpdata, int(chatport))
         asyncio.get_event_loop().run_until_complete(start_server)
         asyncio.get_event_loop().run_forever()
     except KeyboardInterrupt:
-        print("\n" + "> [" + str(time.ctime()) + "] [SEEUSOON] Sanctuary was shut down")
+        print("\n" + "> [" + str(time.ctime()) + "] [SEEUSOON] SNCTRYZERO was shut down")
         sys.exit()
 
 
@@ -46,7 +46,7 @@ def servenow(netpdata="127.0.0.1", chatport="9696"):
 @click.option("-4", "--ipprotv4", "netprotc", flag_value="ipprotv4", help="Start the server on an IPv4 address", required=True)
 @click.version_option(version="16082020", prog_name="SNCTRYZERO Server by t0xic0der")
 def mainfunc(chatport, netprotc):
-    print("> [" + str(time.ctime()) + "] [HOLAUSER] Starting Sanctuary...")
+    print("> [" + str(time.ctime()) + "] [HOLAUSER] Starting SNCTRYZERO...")
     netpdata = ""
     if netprotc == "ipprotv6":
         print("> [" + str(time.ctime()) + "] [HOLAUSER] IP version : 6")
