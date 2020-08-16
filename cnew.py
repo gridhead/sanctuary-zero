@@ -106,13 +106,13 @@ def mainfunc(username, chatroom, servaddr):
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <lightgreen>Chatroom identity [" + chatroom.upper() + "] - Share to add members</lightgreen>"))
         asyncio.get_event_loop().run_until_complete(hello(servaddr, username, chatroom))
     except KeyboardInterrupt as EXPT:
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <lightgreenclear>Leaving SNCTRYZERO...</lightgreen>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <yellow>Leaving SNCTRYZERO...</yellow>"))
         sys.exit()
     except OSError as EXPT:
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <red>A connection to the server could not be established</red>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <yellow>A connection to the server could not be established</yellow>"))
         sys.exit()
     except websockets.exceptions.ConnectionClosedError as EXPT:
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <red>A connection to the server was lost</red>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <yellow>A connection to the server was lost</yellow>"))
         sys.exit()
 
 
