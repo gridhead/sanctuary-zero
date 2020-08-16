@@ -1,4 +1,4 @@
-import asyncio, websockets, time, json, click, secrets, os
+import asyncio, websockets, time, json, click, secrets, os, sys
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit import print_formatted_text, HTML
@@ -93,17 +93,27 @@ def formusnm(username):
 @click.option("-s", "--servaddr", "servaddr", help="Enter the server address you would want to connect to", required=True)
 @click.version_option(version="16082020", prog_name="SNCTRYZERO Client by t0xic0der")
 def mainfunc(username, chatroom, servaddr):
-    os.system("clear")
-    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <b><seagreen>Starting Sanctuary ZERO v15082020 up...</seagreen></b>"))
-    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <lightgreen>Connected to " + servaddr + " successfully</lightgreen>"))
-    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <lightgreen>Session started at " + str(time.ctime()) + "</lightgreen>"))
-    if chatroom is None:
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <yellow>Welcome " + username + "! You have joined a newly created chatroom</yellow>"))
-        chatroom = randgene()
-    elif chekroom(chatroom):
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <yellow>Welcome " + username + "! You have joined the specified chatroom</yellow>"))
-    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <lightgreen>Chatroom identity [" + chatroom.upper() + "] - Share to add members</lightgreen>"))
-    asyncio.get_event_loop().run_until_complete(hello(servaddr, username, chatroom))
+    try:
+        os.system("clear")
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <b><seagreen>Starting Sanctuary ZERO v15082020 up...</seagreen></b>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <lightgreen>Connected to " + servaddr + " successfully</lightgreen>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <lightgreen>Session started at " + str(time.ctime()) + "</lightgreen>"))
+        if chatroom is None:
+            print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <yellow>Welcome " + username + "! You have joined a newly created chatroom</yellow>"))
+            chatroom = randgene()
+        elif chekroom(chatroom):
+            print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <yellow>Welcome " + username + "! You have joined the specified chatroom</yellow>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <lightgreen>Chatroom identity [" + chatroom.upper() + "] - Share to add members</lightgreen>"))
+        asyncio.get_event_loop().run_until_complete(hello(servaddr, username, chatroom))
+    except KeyboardInterrupt as EXPT:
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <yellow>Leaving SNCTRYZERO...</yellow>"))
+        sys.exit()
+    except OSError as EXPT:
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <yellow>A connection to the server could not be established</yellow>"))
+        sys.exit()
+    except websockets.exceptions.ConnectionClosedError as EXPT:
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <yellow>A connection to the server was lost</yellow>"))
+        sys.exit()
 
 
 if __name__ == "__main__":
