@@ -1,0 +1,4 @@
+click==7.1.2
+prompt-toolkit==3.0.6
+wcwidth==0.2.5
+websockets==8.1
