@@ -1,4 +1,8 @@
 # sanctuary-zero
 A TUI client for Sanctuary
 
-![](pictures/mainscrn.png)
+## Server
+![](pictures/servpics.png)
+
+## Client
+![](pictures/clinpics.png)
