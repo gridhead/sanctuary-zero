@@ -2,9 +2,17 @@ import asyncio, websockets, time, json, click, secrets, os
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit import print_formatted_text, HTML
+from prompt_toolkit.validation import Validator, ValidationError
 
 
-session = PromptSession()
+textsess = PromptSession()
+
+
+class emtyfind(Validator):
+    def validate(self, document):
+        text = document.text
+        if text.strip() == "":
+            raise ValidationError(message="You cannot send an empty message")
 
 
 async def consumer_handler(websocket, username, chatroom, servaddr):
@@ -22,8 +30,8 @@ async def producer_handler(websocket, username, chatroom, servaddr):
     footelem = HTML("<b><style bg='seagreen'>" + username.strip() + "</style></b>@<b><style bg='seagreen'>" + chatroom + "</style></b> [<b><style bg='seagreen'>Sanctuary ZERO v15082020</style></b> running on <b><style bg='seagreen'>" + servaddr + "</style></b>]")
     while True:
         with patch_stdout():
-            mesgtext = await session.prompt_async("[" + obtntime() + "] " + formusnm(str(username)) + " ⮞ ", bottom_toolbar=footelem)
-        senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": mesgtext})
+            mesgtext = await textsess.prompt_async("[" + obtntime() + "] " + formusnm(str(username)) + " ⮞ ", bottom_toolbar=footelem, validator=emtyfind())
+        senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": mesgtext.strip()})
         await websocket.send(senddata)
 
 
