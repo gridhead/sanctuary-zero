@@ -1,4 +1,4 @@
-import asyncio, websockets, time, json, click, secrets
+import asyncio, websockets, time, json, click, secrets, os
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit import print_formatted_text, HTML
@@ -13,7 +13,7 @@ async def consumer_handler(websocket, username, chatroom, servaddr):
             recvjson = json.loads(recvdata)
             if recvjson["chatroom"] == chatroom:
                 if recvjson["username"] != username:
-                    print("* [" + str(time.ctime()) + "] | " + formusnm(recvjson["username"]) + " | " + recvjson["mesgtext"])
+                    print("[" + obtntime() + "] " + formusnm(recvjson["username"]) + " ⮞ " + recvjson["mesgtext"])
         except Exception as EXPT:
             pass
 
@@ -22,7 +22,7 @@ async def producer_handler(websocket, username, chatroom, servaddr):
     footelem = HTML("<b><style bg='seagreen'>" + username.strip() + "</style></b>@<b><style bg='seagreen'>" + chatroom + "</style></b> [<b><style bg='seagreen'>Sanctuary ZERO v15082020</style></b> running on <b><style bg='seagreen'>" + servaddr + "</style></b>]")
     while True:
         with patch_stdout():
-            mesgtext = await session.prompt_async("* [" + str(time.ctime()) + "] | " + formusnm(str(username)) + " | ", bottom_toolbar=footelem)
+            mesgtext = await session.prompt_async("[" + obtntime() + "] " + formusnm(str(username)) + " ⮞ ", bottom_toolbar=footelem)
         senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": mesgtext})
         await websocket.send(senddata)
 
@@ -31,10 +31,26 @@ async def hello(servaddr, username, chatroom):
     async with websockets.connect(servaddr) as websocket:
         prod = asyncio.get_event_loop().create_task(producer_handler(websocket, str(username), str(chatroom), str(servaddr)))
         cons = asyncio.get_event_loop().create_task(consumer_handler(websocket, str(username), str(chatroom), str(servaddr)))
-        await websocket.send(str(username) + " has joined the chatroom.")
+        sendmesg = json.dumps({"username": "SNCTRYZERO", "chatroom": chatroom, "mesgtext": str(username) + " has joined the chatroom"})
+        await websocket.send(sendmesg)
         await prod
         await cons
         asyncio.get_event_loop().run_forever()
+
+
+def obtntime():
+    timestmp = time.localtime()
+    timehour = str(timestmp.tm_hour)
+    timemint = str(timestmp.tm_min)
+    timesecs = str(timestmp.tm_sec)
+    if int(timehour) < 10:
+        timehour = "0" + timehour
+    if int(timemint) < 10:
+        timemint = "0" + timemint
+    if int(timesecs) < 10:
+        timesecs = "0" + timesecs
+    timestrg = timehour + ":" + timemint + ":" + timesecs
+    return timestrg
 
 
 def randgene():
@@ -53,6 +69,7 @@ def chekroom(strg):
         except ValueError:
             return False
 
+
 def formusnm(username):
     if len(username) < 10:
         return username + " " * (10 - len(username))
@@ -66,16 +83,18 @@ def formusnm(username):
 @click.option("-u", "--username", "username", help="Enter the username that you would identify yourself with", required=True)
 @click.option("-c", "--chatroom", "chatroom", help="Enter the chatroom identity you would want to enter in")
 @click.option("-s", "--servaddr", "servaddr", help="Enter the server address you would want to connect to", required=True)
-@click.version_option(version="15082020", prog_name="Sanctuary ZERO by t0xic0der")
+@click.version_option(version="16082020", prog_name="SNCTRYZERO Client by t0xic0der")
 def mainfunc(username, chatroom, servaddr):
-    print_formatted_text(HTML("* [" + str(time.ctime()) + "] " + "<b><seagreen>Starting Sanctuary ZERO v15082020 up...</seagreen></b>"))
-    print_formatted_text(HTML("* [" + str(time.ctime()) + "] " + "<lightgreen>Connected to " + servaddr + " successfully</lightgreen>"))
+    os.system("clear")
+    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <b><seagreen>Starting Sanctuary ZERO v15082020 up...</seagreen></b>"))
+    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <lightgreen>Connected to " + servaddr + " successfully</lightgreen>"))
+    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <lightgreen>Session started at " + str(time.ctime()) + "</lightgreen>"))
     if chatroom is None:
-        print_formatted_text(HTML("* [" + str(time.ctime()) + "] " + "<yellow>Welcome " + username + "! You have joined a newly created chatroom</yellow>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <yellow>Welcome " + username + "! You have joined a newly created chatroom</yellow>"))
         chatroom = randgene()
     elif chekroom(chatroom):
-        print_formatted_text(HTML("* [" + str(time.ctime()) + "] " + "<yellow>Welcome " + username + "! You have joined the specified chatroom</yellow>"))
-    print_formatted_text(HTML("* [" + str(time.ctime()) + "] " + "<lightgreen>Chatroom identity [" + chatroom.upper() + "] - Share to add members</lightgreen>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <yellow>Welcome " + username + "! You have joined the specified chatroom</yellow>"))
+    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <lightgreen>Chatroom identity [" + chatroom.upper() + "] - Share to add members</lightgreen>"))
     asyncio.get_event_loop().run_until_complete(hello(servaddr, username, chatroom))
 
 
