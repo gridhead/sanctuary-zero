@@ -1,16 +1,4 @@
-from prompt_toolkit import PromptSession
-from prompt_toolkit.patch_stdout import patch_stdout
-import asyncio
-import asyncio, json, websockets, sys, click, time, os
-
-
-async def my_coroutine():
-    session = PromptSession()
-    while True:
-        with patch_stdout():
-            result = await session.prompt_async('Say something: ')
-        print("< [" + str(time.ctime()) + "] " + str(result))
-        await notify_mesej(result)
+import asyncio, websockets, sys, click, time
 
 
 USERS = set()
@@ -34,9 +22,9 @@ async def unregister(websocket):
 async def chatroom(websocket, path):
     await register(websocket)
     try:
-        async for message in websocket:
-            print("< [" + str(time.ctime()) + "] " + str(message))
-            await notify_mesej(message)
+        async for mesgjson in websocket:
+            print("< [" + str(time.ctime()) + "] " + str(mesgjson))
+            await notify_mesej(mesgjson)
     finally:
         await unregister(websocket)
 
@@ -46,7 +34,6 @@ def servenow(netpdata="127.0.0.1", chatport="9696"):
         print("> [" + str(time.ctime()) + "] [HOLAUSER] Sanctuary was started up on 'ws://" + str(netpdata) + ":" + str(chatport) + "/'")
         start_server = websockets.serve(chatroom, netpdata, int(chatport))
         asyncio.get_event_loop().run_until_complete(start_server)
-        asyncio.get_event_loop().run_until_complete(my_coroutine())
         asyncio.get_event_loop().run_forever()
     except KeyboardInterrupt:
         print("\n" + "> [" + str(time.ctime()) + "] [SEEUSOON] Sanctuary was shut down")
@@ -57,7 +44,7 @@ def servenow(netpdata="127.0.0.1", chatport="9696"):
 @click.option("-c", "--chatport", "chatport", help="Set the port value for WebSockets [0-65536]", required=True)
 @click.option("-6", "--ipprotv6", "netprotc", flag_value="ipprotv6", help="Start the server on an IPv6 address", required=True)
 @click.option("-4", "--ipprotv4", "netprotc", flag_value="ipprotv4", help="Start the server on an IPv4 address", required=True)
-@click.version_option(version="22072020", prog_name="Sanctuary WebSockets by AstroSonic")
+@click.version_option(version="16082020", prog_name="SNCTRYZERO Server by t0xic0der")
 def mainfunc(chatport, netprotc):
     print("> [" + str(time.ctime()) + "] [HOLAUSER] Starting Sanctuary...")
     netpdata = ""
