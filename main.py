@@ -1,4 +1,4 @@
-import asyncio, websockets, sys, click, time
+import asyncio, websockets, sys, click, time, os
 
 
 USERS = set()
@@ -46,6 +46,7 @@ def servenow(netpdata="127.0.0.1", chatport="9696"):
 @click.option("-4", "--ipprotv4", "netprotc", flag_value="ipprotv4", help="Start the server on an IPv4 address", required=True)
 @click.version_option(version="16082020", prog_name="SNCTRYZERO Server by t0xic0der")
 def mainfunc(chatport, netprotc):
+    os.system("clear")
     print("> [" + str(time.ctime()) + "] [HOLAUSER] Starting SNCTRYZERO...")
     netpdata = ""
     if netprotc == "ipprotv6":
