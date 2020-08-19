@@ -1,8 +1,9 @@
 import asyncio, websockets, sys, click, time, os
 from prompt_toolkit import print_formatted_text, HTML
+from websockets.exceptions import ConnectionClosedError
 
 
-USERS = set()
+USERS = {}
 
 
 def obtntime():
@@ -20,29 +21,46 @@ def obtntime():
     return timestrg
 
 
+def getallus(chatroom):
+    userlist = []
+    for indx in USERS:
+        if chatroom == USERS[indx][1]:
+            userlist.append(USERS[indx][0])
+    return userlist
+
+
+def chekusav(sockobjc):
+    if sockobjc in USERS:
+        return True
+    else:
+        return False
+
+
 async def notify_mesej(message):
     if USERS:
         await asyncio.wait([user.send(message) for user in USERS])
 
 
-async def register(websocket):
-    USERS.add(websocket)
-    print_formatted_text(HTML("<gray>[" + obtntime() + "]</gray> " + "<b>SNCTRYZERO</b> ⮞ <yellow>A user just joined the SNCTRYZERO</yellow>"))
-
-
-async def unregister(websocket):
-    USERS.remove(websocket)
-    print_formatted_text(HTML("<gray>[" + obtntime() + "]</gray> " + "<b>SNCTRYZERO</b> ⮞ <yellow>A user just left the SNCTRYZERO</yellow>"))
-
-
 async def chatroom(websocket, path):
-    await register(websocket)
+    if not chekusav(websocket):
+        USERS[websocket] = ""
     try:
         async for mesgjson in websocket:
-            print_formatted_text(HTML("<gray>[" + obtntime() + "]</gray> " + "<b>SNCTRYZERO</b> ⮞ " + str(mesgjson)))
-            await notify_mesej(mesgjson)
-    except Exception as EXPT:
-        await unregister(websocket)
+            if chr(969696) in mesgjson and websocket in USERS:
+                if USERS[websocket] == "":
+                    USERS[websocket] = [mesgjson.split(chr(969696))[1], mesgjson.split(chr(969696))[2]]
+                    print_formatted_text(HTML("<gray>[" + obtntime() + "]</gray> " + "<b><ansigreen>USERJOINED</ansigreen></b> ⮞ <b>" + mesgjson.split(chr(969696))[1] + "@" + mesgjson.split(chr(969696))[2] + "</b>"))
+                    await notify_mesej("SNCTRYZERO" + chr(969696) + "USERJOINED" + chr(969696) + mesgjson.split(chr(969696))[1] + chr(969696) + mesgjson.split(chr(969696))[2] + chr(969696) + str(getallus(mesgjson.split(chr(969696))[2])))
+            else:
+                print_formatted_text(HTML("<gray>[" + obtntime() + "]</gray> " + "<b>SNCTRYZERO</b> ⮞ " + str(mesgjson)))
+                await notify_mesej(mesgjson)
+    except ConnectionClosedError as EXPT:
+        print_formatted_text(HTML("<gray>[" + obtntime() + "]</gray> " + "<b><ansired>USEREXITED</ansired></b> ⮞ <b>" + USERS[websocket][0] + "@" + USERS[websocket][1] + "</b>"))
+        userlist = getallus(USERS[websocket][1])
+        userlist.remove(USERS[websocket][0])
+        leftmesg = "SNCTRYZERO" + chr(969696) + "USEREXITED" + chr(969696) + USERS[websocket][0] + chr(969696) + USERS[websocket][1] + chr(969696) + str(userlist)
+        USERS.pop(websocket)
+        await notify_mesej(leftmesg)
 
 
 def servenow(netpdata="127.0.0.1", chatport="9696"):
@@ -61,10 +79,10 @@ def servenow(netpdata="127.0.0.1", chatport="9696"):
 @click.option("-c", "--chatport", "chatport", help="Set the port value for the server [0-65536]", required=True)
 @click.option("-6", "--ipprotv6", "netprotc", flag_value="ipprotv6", help="Start the server on an IPv6 address", required=True)
 @click.option("-4", "--ipprotv4", "netprotc", flag_value="ipprotv4", help="Start the server on an IPv4 address", required=True)
-@click.version_option(version="18082020", prog_name="SNCTRYZERO Server by t0xic0der")
+@click.version_option(version="19082020", prog_name="SNCTRYZERO Server by t0xic0der")
 def mainfunc(chatport, netprotc):
     os.system("clear")
-    print_formatted_text(HTML("<gray>[" + obtntime() + "]</gray> " + "<b>SNCTRYZERO</b> ⮞ <lightgreen><b>Starting SNCTRYZERO v18082020...</b></lightgreen>"))
+    print_formatted_text(HTML("<gray>[" + obtntime() + "]</gray> " + "<b>SNCTRYZERO</b> ⮞ <lightgreen><b>Starting SNCTRYZERO v19082020...</b></lightgreen>"))
     netpdata = ""
     if netprotc == "ipprotv6":
         print_formatted_text(HTML("<gray>[" + obtntime() + "]</gray> " + "<b>SNCTRYZERO</b> ⮞ <lightgreen>IP version : 6</lightgreen>"))
