@@ -7,6 +7,7 @@ from cryptography.fernet import Fernet, InvalidToken
 
 
 textsess = PromptSession()
+sepr = chr(969696)
 
 
 class emtyfind(Validator):
@@ -30,10 +31,10 @@ class fernetst():
 async def consumer_handler(cphrsuit, websocket, username, chatroom, servaddr):
     async for recvdata in websocket:
         try:
-            if recvdata.split(chr(969696))[0] == "SNCTRYZERO" and recvdata.split(chr(969696))[1] == "USERJOINED" and recvdata.split(chr(969696))[3] == chatroom:
-                print("[" + obtntime() + "] USERJOINED ⮞ " + recvdata.split(chr(969696))[2] + " joined - " + recvdata.split(chr(969696))[4] + " are connected")
-            elif recvdata.split(chr(969696))[0] == "SNCTRYZERO" and recvdata.split(chr(969696))[1] == "USEREXITED" and recvdata.split(chr(969696))[3] == chatroom:
-                print("[" + obtntime() + "] USEREXITED ⮞ " + recvdata.split(chr(969696))[2] + " left - " + recvdata.split(chr(969696))[4] + " are connected")
+            if recvdata.split(sepr)[0] == "SNCTRYZERO" and recvdata.split(sepr)[1] == "USERJOINED" and recvdata.split(sepr)[3] == chatroom:
+                print("[" + obtntime() + "] USERJOINED ⮞ " + recvdata.split(sepr)[2] + " joined - " + recvdata.split(sepr)[4] + " are connected")
+            elif recvdata.split(sepr)[0] == "SNCTRYZERO" and recvdata.split(sepr)[1] == "USEREXITED" and recvdata.split(sepr)[3] == chatroom:
+                print("[" + obtntime() + "] USEREXITED ⮞ " + recvdata.split(sepr)[2] + " left - " + recvdata.split(sepr)[4] + " are connected")
             else:
                 recvjson = json.loads(cphrsuit.decrjson(recvdata))
                 if recvjson["chatroom"] == chatroom and recvjson["username"] != username:
@@ -57,7 +58,7 @@ async def hello(servaddr, username, chatroom, password):
         cphrsuit = fernetst(password.encode("utf8"))
         prod = asyncio.get_event_loop().create_task(producer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
         cons = asyncio.get_event_loop().create_task(consumer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
-        await websocket.send(chr(969696)+username+chr(969696)+chatroom)
+        await websocket.send(username+sepr+chatroom)
         await prod
         await cons
         asyncio.get_event_loop().run_forever()

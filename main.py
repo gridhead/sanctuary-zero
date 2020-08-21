@@ -4,7 +4,7 @@ from websockets.exceptions import ConnectionClosedError
 
 
 USERS = {}
-
+sepr = chr(969696)
 
 def obtntime():
     timestmp = time.localtime()
@@ -46,11 +46,11 @@ async def chatroom(websocket, path):
         USERS[websocket] = ""
     try:
         async for mesgjson in websocket:
-            if chr(969696) in mesgjson and websocket in USERS:
+            if sepr in mesgjson and websocket in USERS:
                 if USERS[websocket] == "":
-                    USERS[websocket] = [mesgjson.split(chr(969696))[1], mesgjson.split(chr(969696))[2]]
-                    print_formatted_text(HTML("<gray>[" + obtntime() + "]</gray> " + "<b><ansigreen>USERJOINED</ansigreen></b> ⮞ <b>" + mesgjson.split(chr(969696))[1] + "@" + mesgjson.split(chr(969696))[2] + "</b>"))
-                    await notify_mesej("SNCTRYZERO" + chr(969696) + "USERJOINED" + chr(969696) + mesgjson.split(chr(969696))[1] + chr(969696) + mesgjson.split(chr(969696))[2] + chr(969696) + str(getallus(mesgjson.split(chr(969696))[2])))
+                    USERS[websocket] = [mesgjson.split(sepr)[0], mesgjson.split(sepr)[1]]
+                    print_formatted_text(HTML("<gray>[" + obtntime() + "]</gray> " + "<b><ansigreen>USERJOINED</ansigreen></b> ⮞ <b>" + mesgjson.split(sepr)[0] + "@" + mesgjson.split(sepr)[1] + "</b>"))
+                    await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[0] + sepr + mesgjson.split(sepr)[1] + sepr + str(getallus(mesgjson.split(sepr)[1])))
             else:
                 print_formatted_text(HTML("<gray>[" + obtntime() + "]</gray> " + "<b>SNCTRYZERO</b> ⮞ " + str(mesgjson)))
                 await notify_mesej(mesgjson)
@@ -58,7 +58,7 @@ async def chatroom(websocket, path):
         print_formatted_text(HTML("<gray>[" + obtntime() + "]</gray> " + "<b><ansired>USEREXITED</ansired></b> ⮞ <b>" + USERS[websocket][0] + "@" + USERS[websocket][1] + "</b>"))
         userlist = getallus(USERS[websocket][1])
         userlist.remove(USERS[websocket][0])
-        leftmesg = "SNCTRYZERO" + chr(969696) + "USEREXITED" + chr(969696) + USERS[websocket][0] + chr(969696) + USERS[websocket][1] + chr(969696) + str(userlist)
+        leftmesg = "SNCTRYZERO" + sepr + "USEREXITED" + sepr + USERS[websocket][0] + sepr + USERS[websocket][1] + sepr + str(userlist)
         USERS.pop(websocket)
         await notify_mesej(leftmesg)
 
