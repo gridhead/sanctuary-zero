@@ -1,12 +1,16 @@
-import asyncio, websockets, time, json, click, secrets, os, sys
+import asyncio, websockets, time, json, click, secrets, os, sys, ast
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit import print_formatted_text, HTML
 from prompt_toolkit.validation import Validator, ValidationError
+from prompt_toolkit.completion import WordCompleter
 from cryptography.fernet import Fernet, InvalidToken
 
 
-textsess = PromptSession()
+sess = PromptSession()
+sepr = chr(969696)
+global lict
+lict = WordCompleter([])
 
 
 class emtyfind(Validator):
@@ -27,22 +31,35 @@ class fernetst():
         return self.suit.decrypt(data.encode("utf8")).decode("utf8")
 
 
+def prepndat(lict):
+    for indx in range(len(lict)):
+        lict[indx] = "@" + str(lict[indx])
+    return WordCompleter(lict)
+
+
 async def consumer_handler(cphrsuit, websocket, username, chatroom, servaddr):
     async for recvdata in websocket:
+        global lict
         try:
-            recvjson = json.loads(cphrsuit.decrjson(recvdata))
-            if recvjson["chatroom"] == chatroom:
-                if recvjson["username"] != username:
+            if recvdata.split(sepr)[0] == "SNCTRYZERO" and recvdata.split(sepr)[1] == "USERJOINED" and recvdata.split(sepr)[3] == chatroom:
+                lict = prepndat(ast.literal_eval(recvdata.split(sepr)[4]))
+                print("[" + obtntime() + "] USERJOINED ⮞ " + recvdata.split(sepr)[2] + " joined - " + recvdata.split(sepr)[4] + " are connected - Indexes updated")
+            elif recvdata.split(sepr)[0] == "SNCTRYZERO" and recvdata.split(sepr)[1] == "USEREXITED" and recvdata.split(sepr)[3] == chatroom:
+                lict = prepndat(ast.literal_eval(recvdata.split(sepr)[4]))
+                print("[" + obtntime() + "] USEREXITED ⮞ " + recvdata.split(sepr)[2] + " left - " + recvdata.split(sepr)[4] + " are connected - Indexes updated")
+            else:
+                recvjson = json.loads(cphrsuit.decrjson(recvdata))
+                if recvjson["chatroom"] == chatroom and recvjson["username"] != username:
                     print("[" + obtntime() + "] " + formusnm(recvjson["username"]) + " ⮞ " + recvjson["mesgtext"])
         except Exception as EXPT:
             pass
 
 
 async def producer_handler(cphrsuit, websocket, username, chatroom, servaddr):
-    footelem = HTML("<b><style bg='seagreen'>" + username.strip() + "</style></b>@<b><style bg='seagreen'>" + chatroom + "</style></b> [<b><style bg='seagreen'>Sanctuary ZERO v18082020</style></b> running on <b><style bg='seagreen'>" + servaddr + "</style></b>]")
+    footelem = HTML("<b><style bg='seagreen'>" + username.strip() + "</style></b>@<b><style bg='seagreen'>" + chatroom + "</style></b> [<b><style bg='seagreen'>Sanctuary ZERO v19082020</style></b> running on <b><style bg='seagreen'>" + servaddr + "</style></b>]")
     while True:
         with patch_stdout():
-            mesgtext = await textsess.prompt_async("[" + obtntime() + "] " + formusnm(str(username)) + " ⮞ ", bottom_toolbar=footelem, validator=emtyfind())
+            mesgtext = await sess.prompt_async("[" + obtntime() + "] " + formusnm(str(username)) + " ⮞ ", bottom_toolbar=footelem, validator=emtyfind(), completer=lict)
         senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": mesgtext.strip()})
         senddata = cphrsuit.encrjson(senddata)
         await websocket.send(senddata)
@@ -53,8 +70,7 @@ async def hello(servaddr, username, chatroom, password):
         cphrsuit = fernetst(password.encode("utf8"))
         prod = asyncio.get_event_loop().create_task(producer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
         cons = asyncio.get_event_loop().create_task(consumer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
-        sendmesg = cphrsuit.encrjson(json.dumps({"username": "SNCTRYZERO", "chatroom": chatroom, "mesgtext": str(username) + " has joined the chatroom"}))
-        await websocket.send(sendmesg)
+        await websocket.send(username+sepr+chatroom)
         await prod
         await cons
         asyncio.get_event_loop().run_forever()
@@ -114,11 +130,11 @@ def formusnm(username):
 @click.option("-p", "--password", "password", help="Enter the chatroom password for decrypting the messages")
 @click.option("-c", "--chatroom", "chatroom", help="Enter the chatroom identity you would want to enter in")
 @click.option("-s", "--servaddr", "servaddr", help="Enter the server address you would want to connect to", required=True)
-@click.version_option(version="18082020", prog_name="SNCTRYZERO Client by t0xic0der")
+@click.version_option(version="19082020", prog_name="SNCTRYZERO Client by t0xic0der")
 def mainfunc(username, password, chatroom, servaddr):
     try:
         os.system("clear")
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <b><seagreen>Starting Sanctuary ZERO v18082020 up...</seagreen></b>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <b><seagreen>Starting Sanctuary ZERO v19082020 up...</seagreen></b>"))
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <lightgreen>Connected to " + servaddr + " successfully</lightgreen>"))
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <lightgreen>Session started at " + str(time.ctime()) + "</lightgreen>"))
         if chatroom is None:
@@ -141,7 +157,7 @@ def mainfunc(username, password, chatroom, servaddr):
                 sys.exit()
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <cyan>Chatroom identity <white>⮞</white> " + chatroom + "</cyan>"))
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <cyan>Chatroom password <white>⮞</white> " + password + "</cyan>"))
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <lightgreen>Share the chatroom username and password to add members!</lightgreen>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <lightgreen>Share the chatroom identity and password to add members!</lightgreen>"))
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <lightgreen>Your conversations are protected with end-to-end encryption</lightgreen>"))
         asyncio.get_event_loop().run_until_complete(hello(servaddr, username, chatroom, password))
     except KeyboardInterrupt as EXPT:
