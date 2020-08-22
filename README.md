@@ -1,5 +1,5 @@
 # sanctuary-zero
-A TUI client for Sanctuary
+Ultra lightweight implementation of secure Sanctuary messaging platform using WebSockets, Fernet Cryptography, Asyncio and Prompt Toolkit
 
 ## Server
 ![](pictures/servpics.png)
