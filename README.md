@@ -8,6 +8,9 @@
     <img src="https://img.shields.io/github/license/t0xic0der/sanctuary-zero?style=flat-square&logo=appveyor&color=teal">
 </p>
 
+## Good news
+This project is now listed in the [Projects using Python Prompt Toolkit](https://github.com/prompt-toolkit/python-prompt-toolkit).
+
 ## Features
 1.  Provides real-time conversation using synchronous WebSocket objects
 2.  Incredibly lightweight with memory usage as low as just 4MB over Python runtime
