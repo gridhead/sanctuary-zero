@@ -3,14 +3,11 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit import print_formatted_text, HTML
 from prompt_toolkit.validation import Validator, ValidationError
-from prompt_toolkit.completion import WordCompleter
 from cryptography.fernet import Fernet, InvalidToken
 
 
 sess = PromptSession()
 sepr = chr(969696)
-global lict
-lict = WordCompleter([])
 
 
 class emtyfind(Validator):
@@ -31,21 +28,13 @@ class fernetst():
         return self.suit.decrypt(data.encode("utf8")).decode("utf8")
 
 
-def prepndat(lict):
-    for indx in range(len(lict)):
-        lict[indx] = "@" + str(lict[indx])
-    return WordCompleter(lict)
-
-
 async def consumer_handler(cphrsuit, websocket, username, chatroom, servaddr):
     async for recvdata in websocket:
         global lict
         try:
             if recvdata.split(sepr)[0] == "SNCTRYZERO" and recvdata.split(sepr)[1] == "USERJOINED" and recvdata.split(sepr)[3] == chatroom:
-                lict = prepndat(ast.literal_eval(recvdata.split(sepr)[4]))
                 print("[" + obtntime() + "] USERJOINED ⮞ " + recvdata.split(sepr)[2] + " joined - " + recvdata.split(sepr)[4] + " are connected - Indexes updated")
             elif recvdata.split(sepr)[0] == "SNCTRYZERO" and recvdata.split(sepr)[1] == "USEREXITED" and recvdata.split(sepr)[3] == chatroom:
-                lict = prepndat(ast.literal_eval(recvdata.split(sepr)[4]))
                 print("[" + obtntime() + "] USEREXITED ⮞ " + recvdata.split(sepr)[2] + " left - " + recvdata.split(sepr)[4] + " are connected - Indexes updated")
             else:
                 recvjson = json.loads(cphrsuit.decrjson(recvdata))
@@ -59,7 +48,7 @@ async def producer_handler(cphrsuit, websocket, username, chatroom, servaddr):
     footelem = HTML("<b><style bg='seagreen'>" + username.strip() + "</style></b>@<b><style bg='seagreen'>" + chatroom + "</style></b> [<b><style bg='seagreen'>Sanctuary ZERO v19082020</style></b> running on <b><style bg='seagreen'>" + servaddr + "</style></b>]")
     while True:
         with patch_stdout():
-            mesgtext = await sess.prompt_async("[" + obtntime() + "] " + formusnm(str(username)) + " ⮞ ", bottom_toolbar=footelem, validator=emtyfind(), completer=lict)
+            mesgtext = await sess.prompt_async("[" + obtntime() + "] " + formusnm(str(username)) + " ⮞ ", bottom_toolbar=footelem, validator=emtyfind())
         senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": mesgtext.strip()})
         senddata = cphrsuit.encrjson(senddata)
         await websocket.send(senddata)
