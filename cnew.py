@@ -30,16 +30,15 @@ class fernetst():
 
 async def consumer_handler(cphrsuit, websocket, username, chatroom, servaddr):
     async for recvdata in websocket:
-        global lict
         try:
             if recvdata.split(sepr)[0] == "SNCTRYZERO" and recvdata.split(sepr)[1] == "USERJOINED" and recvdata.split(sepr)[3] == chatroom:
-                print("[" + obtntime() + "] USERJOINED ⮞ " + recvdata.split(sepr)[2] + " joined - " + recvdata.split(sepr)[4] + " are connected - Indexes updated")
+                print("[" + obtntime() + "] USERJOINED > " + recvdata.split(sepr)[2] + " joined - " + recvdata.split(sepr)[4] + " are connected - Indexes updated")
             elif recvdata.split(sepr)[0] == "SNCTRYZERO" and recvdata.split(sepr)[1] == "USEREXITED" and recvdata.split(sepr)[3] == chatroom:
-                print("[" + obtntime() + "] USEREXITED ⮞ " + recvdata.split(sepr)[2] + " left - " + recvdata.split(sepr)[4] + " are connected - Indexes updated")
+                print("[" + obtntime() + "] USEREXITED > " + recvdata.split(sepr)[2] + " left - " + recvdata.split(sepr)[4] + " are connected - Indexes updated")
             else:
                 recvjson = json.loads(cphrsuit.decrjson(recvdata))
                 if recvjson["chatroom"] == chatroom and recvjson["username"] != username:
-                    print("[" + obtntime() + "] " + formusnm(recvjson["username"]) + " ⮞ " + recvjson["mesgtext"])
+                    print("[" + obtntime() + "] " + formusnm(recvjson["username"]) + " > " + recvjson["mesgtext"])
         except Exception as EXPT:
             pass
 
@@ -48,7 +47,7 @@ async def producer_handler(cphrsuit, websocket, username, chatroom, servaddr):
     footelem = HTML("<b>[" + chatroom + "]</b>" + " " + username.strip() + " - Sanctuary ZERO v04092020 running on '" + servaddr + "' - Hit Ctrl+C to EXIT")
     while True:
         with patch_stdout():
-            mesgtext = await sess.prompt_async("[" + obtntime() + "] " + formusnm(str(username)) + " ⮞ ", bottom_toolbar=footelem, validator=emtyfind())
+            mesgtext = await sess.prompt_async("[" + obtntime() + "] " + formusnm(str(username)) + " > ", bottom_toolbar=footelem, validator=emtyfind())
         senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": mesgtext.strip()})
         senddata = cphrsuit.encrjson(senddata)
         await websocket.send(senddata)
@@ -116,40 +115,40 @@ def formusnm(username):
 def mainfunc(username, password, chatroom, servaddr):
     try:
         os.system("clear")
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <b><seagreen>Starting Sanctuary ZERO v04092020 up...</seagreen></b>"))
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <seagreen>Connected to '" + servaddr + "' successfully</seagreen>"))
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <seagreen>Session started at " + str(time.ctime()) + "</seagreen>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <b><seagreen>Starting Sanctuary ZERO v04092020 up...</seagreen></b>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Connected to '" + servaddr + "' successfully</seagreen>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Session started at " + str(time.ctime()) + "</seagreen>"))
         if chatroom is None:
-            print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <green>A new chatroom was generated</green>"))
+            print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A new chatroom was generated</green>"))
             chatroom = randgene()
         else:
             if chekroom(chatroom) is True:
-                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <green>A valid chatroom identity was entered</green>"))
+                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A valid chatroom identity was entered</green>"))
             else:
-                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <green>An invalid chatroom identity was entered</green>"))
+                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>An invalid chatroom identity was entered</green>"))
                 sys.exit()
         if password is None:
-            print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <green>A new password was generated</green>"))
+            print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A new password was generated</green>"))
             password = Fernet.generate_key().decode("utf8")
         else:
             if chekpass(password) is True:
-                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <green>A valid chatroom password was entered</green>"))
+                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A valid chatroom password was entered</green>"))
             else:
-                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <green>An invalid chatroom password was entered</green>"))
+                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>An invalid chatroom password was entered</green>"))
                 sys.exit()
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <seagreen>Chatroom identity : " + chatroom + "</seagreen>"))
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <seagreen>Chatroom password : " + password + "</seagreen>"))
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <seagreen>Share the chatroom identity and password to add members!</seagreen>"))
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <seagreen>Your conversations are protected with end-to-end encryption</seagreen>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Chatroom identity : " + chatroom + "</seagreen>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Chatroom password : " + password + "</seagreen>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Share the chatroom identity and password to add members!</seagreen>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Your conversations are protected with end-to-end encryption</seagreen>"))
         asyncio.get_event_loop().run_until_complete(hello(servaddr, username, chatroom, password))
     except KeyboardInterrupt as EXPT:
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <red>Leaving SNCTRYZERO...</red>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Leaving SNCTRYZERO...</red>"))
         sys.exit()
     except OSError as EXPT:
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <red>A connection to the server could not be established</red>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>A connection to the server could not be established</red>"))
         sys.exit()
     except websockets.exceptions.ConnectionClosedError as EXPT:
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO ⮞ <red>A connection to the server was lost</red>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>A connection to the server was lost</red>"))
         sys.exit()
 
 

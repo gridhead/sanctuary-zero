@@ -46,13 +46,13 @@ async def chatroom(websocket, path):
             if sepr in mesgjson and websocket in USERS:
                 if USERS[websocket] == "":
                     USERS[websocket] = [mesgjson.split(sepr)[0], mesgjson.split(sepr)[1]]
-                    print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> ⮞ <green>" + mesgjson.split(sepr)[0] + "@" + mesgjson.split(sepr)[1] + "</green>"))
+                    print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" + mesgjson.split(sepr)[1] + "</green>"))
                     await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[0] + sepr + mesgjson.split(sepr)[1] + sepr + str(getallus(mesgjson.split(sepr)[1])))
             else:
-                print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> ⮞ " + str(mesgjson)))
+                print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + str(mesgjson)))
                 await notify_mesej(mesgjson)
     except ConnectionClosedError as EXPT:
-        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USEREXITED</b> ⮞ <red>" + USERS[websocket][0] + "@" + USERS[websocket][1] + "</red>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USEREXITED</b> > <red>" + USERS[websocket][0] + "@" + USERS[websocket][1] + "</red>"))
         userlist = getallus(USERS[websocket][1])
         userlist.remove(USERS[websocket][0])
         leftmesg = "SNCTRYZERO" + sepr + "USEREXITED" + sepr + USERS[websocket][0] + sepr + USERS[websocket][1] + sepr + str(userlist)
@@ -64,11 +64,11 @@ def servenow(netpdata="127.0.0.1", chatport="9696"):
     try:
         start_server = websockets.serve(chatroom, netpdata, int(chatport))
         asyncio.get_event_loop().run_until_complete(start_server)
-        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> ⮞ <green>SNCTRYZERO was started up on 'ws://" + str(netpdata) + ":" + str(chatport) + "/'</green>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>SNCTRYZERO was started up on 'ws://" + str(netpdata) + ":" + str(chatport) + "/'</green>"))
         asyncio.get_event_loop().run_forever()
     except KeyboardInterrupt:
         print("")
-        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> ⮞ <red><b>SNCTRYZERO was shut down</b></red>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <red><b>SNCTRYZERO was shut down</b></red>"))
         sys.exit()
 
 
@@ -80,17 +80,17 @@ def servenow(netpdata="127.0.0.1", chatport="9696"):
 def mainfunc(chatport, netprotc):
     try:
         os.system("clear")
-        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> ⮞ <green><b>Starting SNCTRYZERO v04092020...</b></green>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green><b>Starting SNCTRYZERO v04092020...</b></green>"))
         netpdata = ""
         if netprotc == "ipprotv6":
-            print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> ⮞ <green>IP version : 6</green>"))
+            print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>IP version : 6</green>"))
             netpdata = "::"
         elif netprotc == "ipprotv4":
-            print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> ⮞ <green>IP version : 4</green>"))
+            print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>IP version : 4</green>"))
             netpdata = "0.0.0.0"
         servenow(netpdata, chatport)
     except OSError:
-        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> ⮞ <red><b>The server could not be started up</b></red>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <red><b>The server could not be started up</b></red>"))
 
 
 if __name__ == "__main__":
