@@ -55,13 +55,24 @@ async def producer_handler(cphrsuit, websocket, username, chatroom, servaddr):
 
 async def hello(servaddr, username, chatroom, password):
     async with websockets.connect(servaddr) as websocket:
-        cphrsuit = fernetst(password.encode("utf8"))
-        prod = asyncio.get_event_loop().create_task(producer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
-        cons = asyncio.get_event_loop().create_task(consumer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
-        await websocket.send(username+sepr+chatroom)
-        await prod
-        await cons
-        asyncio.get_event_loop().run_forever()
+        try:
+            cphrsuit = fernetst(password.encode("utf8"))
+            prod = asyncio.get_event_loop().create_task(
+                producer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
+            cons = asyncio.get_event_loop().create_task(
+                consumer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
+            await websocket.send(username + sepr + chatroom)
+            await prod
+            await cons
+            asyncio.get_event_loop().run_forever()
+        except Exception as e:
+            if websocket.closed:
+                print_formatted_text(
+                    HTML(
+                        "[" + obtntime() + "] "
+                        + "SNCTRYZERO > <red>Can't Establish Connection to server. Detail: {}</red>".format(e))
+                )
+            raise KeyboardInterrupt
 
 
 def obtntime():
@@ -101,25 +112,34 @@ def chekpass(pswd):
 
 
 def formusnm(username):
-    if len(username) < 10:      return username + " " * (10 - len(username))
-    elif len(username) > 10:    return username[0:10]
-    else:                       return username
+    if len(username) < 10:
+        return username + " " * (10 - len(username))
+    elif len(username) > 10:
+        return username[0:10]
+    else:
+        return username
 
 
 @click.command()
-@click.option("-u", "--username", "username", help="Enter the username that you would identify yourself with", required=True)
+@click.option("-u", "--username", "username", help="Enter the username that you would identify yourself with",
+              required=True)
 @click.option("-p", "--password", "password", help="Enter the chatroom password for decrypting the messages")
 @click.option("-c", "--chatroom", "chatroom", help="Enter the chatroom identity you would want to enter in")
-@click.option("-s", "--servaddr", "servaddr", help="Enter the server address you would want to connect to", required=True)
+@click.option("-s", "--servaddr", "servaddr", help="Enter the server address you would want to connect to",
+              required=True)
 @click.version_option(version="04092020", prog_name="SNCTRYZERO Client by t0xic0der")
 def mainfunc(username, password, chatroom, servaddr):
     try:
         os.system("clear")
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <b><seagreen>Starting Sanctuary ZERO v04092020 up...</seagreen></b>"))
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Connected to '" + servaddr + "' successfully</seagreen>"))
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Session started at " + str(time.ctime()) + "</seagreen>"))
+        print_formatted_text(HTML(
+            "[" + obtntime() + "] " + "SNCTRYZERO > <b><seagreen>Starting Sanctuary ZERO v04092020 up...</seagreen></b>"))
+        print_formatted_text(HTML(
+            "[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Connected to '" + servaddr + "' successfully</seagreen>"))
+        print_formatted_text(HTML(
+            "[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Session started at " + str(time.ctime()) + "</seagreen>"))
         if chatroom is None:
-            print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A new chatroom was generated</green>"))
+            print_formatted_text(
+                HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A new chatroom was generated</green>"))
             chatroom = randgene()
         else:
             if chekroom(chatroom) is True:
@@ -143,21 +163,35 @@ def mainfunc(username, password, chatroom, servaddr):
             else:
                 print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>An invalid chatroom password was entered</red>"))
                 sys.exit()
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Chatroom identity : " + chatroom + "</seagreen>"))
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Chatroom password : " + password + "</seagreen>"))
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Share the chatroom identity and password to add members!</seagreen>"))
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Your conversations are protected with end-to-end encryption</seagreen>"))
+        print_formatted_text(
+            HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Chatroom identity : " + chatroom + "</seagreen>"))
+        print_formatted_text(
+            HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Chatroom password : " + password + "</seagreen>"))
+        print_formatted_text(HTML(
+            "[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Share the chatroom identity and password to add members!</seagreen>"))
+        print_formatted_text(HTML(
+            "[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Your conversations are protected with end-to-end encryption</seagreen>"))
         asyncio.get_event_loop().run_until_complete(hello(servaddr, username, chatroom, password))
     except KeyboardInterrupt as EXPT:
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Leaving SNCTRYZERO...</red>"))
         sys.exit()
     except OSError as EXPT:
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>A connection to the server could not be established</red>"))
+        print_formatted_text(HTML(
+            "[" + obtntime() + "] " + "SNCTRYZERO > <red>A connection to the server could not be established</red>"))
         sys.exit()
     except websockets.exceptions.ConnectionClosedError as EXPT:
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>A connection to the server was lost</red>"))
+        print_formatted_text(
+            HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>A connection to the server was lost</red>"))
         sys.exit()
 
+
+def sig_handler(signum, frame):
+    print_formatted_text(
+        HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>SIGABRT{} is being called</red>".format(signum)))
+    raise KeyboardInterrupt
+
+
+signal.signal(signal.SIGABRT, sig_handler)
 
 if __name__ == "__main__":
     mainfunc()
