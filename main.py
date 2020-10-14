@@ -28,9 +28,9 @@ def getallus(chatroom):
 
 def chekusav(sockobjc):
     if sockobjc in USERS:
-        return True
+        return 1
     else:
-        return False
+        return 0
 
 
 async def notify_mesej(message):
