@@ -78,8 +78,6 @@ def obtntime():
 def randgene():
     numb = 8
     randstrg = ''.join(secrets.choice("ABCDEF" + "0123456789") for i in range(numb))
-    if not randstrg.isupper():
-        randstrg = randgene()
     return randstrg
 
 
@@ -127,11 +125,15 @@ def mainfunc(username, password, chatroom, servaddr):
             if chekroom(chatroom) is True:
                 print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A valid chatroom identity was entered</green>"))
             elif not chatroom.isupper():
-                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>An invalid chatroom identity (with lowercase character) was entered</green>"))
-                sys.exit()
+                chatroom = chatroom.upper()
+                if chekroom(chatroom):
+                    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A valid ahhahha chatroom identity was entered</green>"))
+                else:
+                    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>An invalid chatroom identity was entered</green>"))
+                    sys.exit()
             else:
-                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>An invalid chatroom identity was entered</green>"))
-                sys.exit()
+                    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>An invalid chatroom identity was entered</green>"))
+                    sys.exit()
         if password is None:
             print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A new password was generated</green>"))
             password = Fernet.generate_key().decode("utf8")
