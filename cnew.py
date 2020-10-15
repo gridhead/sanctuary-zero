@@ -47,7 +47,8 @@ async def producer_handler(cphrsuit, websocket, username, chatroom, servaddr):
     footelem = HTML("<b>[" + chatroom + "]</b>" + " " + username.strip() + " - Sanctuary ZERO v04092020 running on '" + servaddr + "' - Hit Ctrl+C to EXIT")
     while True:
         with patch_stdout():
-            mesgtext = await sess.prompt_async("[" + obtntime() + "] " + formusnm(str(username)) + " > ", bottom_toolbar=footelem, validator=emtyfind())
+            mesgtext = await sess.prompt_async(lambda:"[" + obtntime() + "] " + formusnm(str(username)) + " > ", 
+                                               bottom_toolbar=footelem, validator=emtyfind(), refresh_interval=0.5)
         senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": mesgtext.strip()})
         senddata = cphrsuit.encrjson(senddata)
         await websocket.send(senddata)
