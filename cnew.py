@@ -78,6 +78,8 @@ def obtntime():
 def randgene():
     numb = 8
     randstrg = ''.join(secrets.choice("ABCDEF" + "0123456789") for i in range(numb))
+    if not randstrg.isupper():
+        randstrg = randgene()
     return randstrg
 
 
@@ -87,7 +89,8 @@ def chekroom(strg):
     else:
         try:
             geee = int(strg, 16)
-            return True
+            print(geee)
+            return strg.isupper()
         except ValueError:
             return False
 
@@ -124,6 +127,9 @@ def mainfunc(username, password, chatroom, servaddr):
         else:
             if chekroom(chatroom) is True:
                 print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A valid chatroom identity was entered</green>"))
+            elif not chatroom.isupper():
+                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>An invalid chatroom identity (with lowercase character) was entered</green>"))
+                sys.exit()
             else:
                 print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>An invalid chatroom identity was entered</green>"))
                 sys.exit()
