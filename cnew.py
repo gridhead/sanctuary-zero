@@ -4,7 +4,7 @@ from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit import print_formatted_text, HTML
 from prompt_toolkit.validation import Validator, ValidationError
 from cryptography.fernet import Fernet, InvalidToken
-
+import base64
 
 sess = PromptSession()
 sepr = chr(969696)
@@ -48,7 +48,8 @@ async def producer_handler(cphrsuit, websocket, username, chatroom, servaddr):
     while True:
         with patch_stdout():
             mesgtext = await sess.prompt_async("[" + obtntime() + "] " + formusnm(str(username)) + " > ", bottom_toolbar=footelem, validator=emtyfind())
-        senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": mesgtext.strip()})
+        encmesg = base64.b64encode(mesgtext.strip())
+        senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": encmesg})
         senddata = cphrsuit.encrjson(senddata)
         await websocket.send(senddata)
 
