@@ -34,8 +34,9 @@ async def chatroom(websocket, path):
     await register(websocket)
     try:
         async for message in websocket:
-            print("< [" + str(time.ctime()) + "] " + str(message))
-            await notify_mesej(message)
+            decmesg = base64.b64decode(message)
+            print("< [" + str(time.ctime()) + "] " + str(decmesg))
+            await notify_mesej(decmesg)
     finally:
         await unregister(websocket)
 
