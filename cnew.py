@@ -89,7 +89,6 @@ def chekroom(strg):
     else:
         try:
             geee = int(strg, 16)
-            print(geee)
             return strg.isupper()
         except ValueError:
             return False
