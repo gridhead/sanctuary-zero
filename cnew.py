@@ -127,7 +127,7 @@ def mainfunc(username, password, chatroom, servaddr):
             elif not chatroom.isupper():
                 chatroom = chatroom.upper()
                 if chekroom(chatroom):
-                    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A valid ahhahha chatroom identity was entered</green>"))
+                    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A valid chatroom identity was entered</green>"))
                 else:
                     print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>An invalid chatroom identity was entered</green>"))
                     sys.exit()
