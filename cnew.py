@@ -1,4 +1,6 @@
 import asyncio, websockets, time, json, click, secrets, os, sys
+import signal
+
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit import print_formatted_text, HTML
@@ -44,13 +46,18 @@ async def consumer_handler(cphrsuit, websocket, username, chatroom, servaddr):
 
 
 async def producer_handler(cphrsuit, websocket, username, chatroom, servaddr):
-    footelem = HTML("<b>[" + chatroom + "]</b>" + " " + username.strip() + " - Sanctuary ZERO v04092020 running on '" + servaddr + "' - Hit Ctrl+C to EXIT")
-    while True:
-        with patch_stdout():
-            mesgtext = await sess.prompt_async(lambda:"[" + obtntime() + "] " + formusnm(str(username)) + " > ", bottom_toolbar=footelem, validator=emtyfind(), refresh_interval=0.5)
-        senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": mesgtext.strip()})
-        senddata = cphrsuit.encrjson(senddata)
-        await websocket.send(senddata)
+    try:
+        footelem = HTML("<b>[" + chatroom + "]</b>" + " " + username.strip() + " - Sanctuary ZERO v04092020 running on '" + servaddr + "' - Hit Ctrl+C to EXIT")
+        while True:
+            with patch_stdout():
+                mesgtext = await sess.prompt_async(lambda:"[" + obtntime() + "] " + formusnm(str(username)) + " > ", bottom_toolbar=footelem, validator=emtyfind(), refresh_interval=0.5)
+            senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": mesgtext.strip()})
+            senddata = cphrsuit.encrjson(senddata)
+            await websocket.send(senddata)
+
+    except EOFError:
+        print("Quit, Ctrl+D pressed")
+        raise KeyboardInterrupt
 
 
 async def hello(servaddr, username, chatroom, password):

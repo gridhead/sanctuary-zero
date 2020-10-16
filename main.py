@@ -1,16 +1,29 @@
 import asyncio
-import click
 import os
 import signal
 import sys
 import time
-import websockets
 
-from prompt_toolkit import print_formatted_text, HTML
+import click
+import websockets
+from prompt_toolkit import print_formatted_text, HTML, PromptSession
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.patch_stdout import patch_stdout
 from websockets.exceptions import ConnectionClosedError
 
 USERS = {}
 sepr = chr(969696)
+sess = PromptSession()
+
+bindings = KeyBindings()
+
+
+@bindings.add('c-q')
+def _(event):
+    " Exit when `c-x` is pressed. "
+    print_formatted_text(
+        HTML("\n"+"[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <red><b>Bye ..</b></red>"))
+    raise KeyboardInterrupt
 
 
 def obtntime():
@@ -48,7 +61,7 @@ def wrap_text(message, max_width, indent=24):
     for i in range(0, message_width, width):
         if i > 0:
             wrapped_message += indent_text
-        wrapped_message += message[i : i + width]
+        wrapped_message += message[i: i + width]
         if i < message_width - width:
             wrapped_message += '\n'
 
@@ -64,17 +77,21 @@ async def chatroom(websocket, path):
                 if USERS[websocket] == "":
                     USERS[websocket] = [mesgjson.split(sepr)[0], mesgjson.split(sepr)[1]]
                     print_formatted_text(HTML(
-                        "[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" +
+                        "\n" + "[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" +
                         mesgjson.split(sepr)[1] + "</green>"))
                     await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[0] + sepr +
                                        mesgjson.split(sepr)[1] + sepr + str(getallus(mesgjson.split(sepr)[1])))
+
             else:
                 terminal_columns = os.get_terminal_size()[0]
-                print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + wrap_text(str(mesgjson), terminal_columns)))
+                print_formatted_text(HTML(
+                    "\n" + "[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + wrap_text(str(mesgjson),
+                                                                                        terminal_columns)))
                 await notify_mesej(mesgjson)
+
     except ConnectionClosedError as EXPT:
         print_formatted_text(HTML(
-            "[" + obtntime() + "] " + "<b>USEREXITED</b> > <red>" + USERS[websocket][0] + "@" + USERS[websocket][
+            "\n" + "[" + obtntime() + "] " + "<b>USEREXITED</b> > <red>" + USERS[websocket][0] + "@" + USERS[websocket][
                 1] + "</red>"))
         userlist = getallus(USERS[websocket][1])
         userlist.remove(USERS[websocket][0])
@@ -84,15 +101,22 @@ async def chatroom(websocket, path):
         await notify_mesej(leftmesg)
 
 
-def servenow(netpdata="127.0.0.1", chatport="9696"):
+async def servenow(netpdata="127.0.0.1", chatport="9696"):
     try:
-        start_server = websockets.serve(chatroom, netpdata, int(chatport))
-        asyncio.get_event_loop().run_until_complete(start_server)
         print_formatted_text(HTML(
             "[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>SNCTRYZERO was started up on 'ws://" + str(
                 netpdata) + ":" + str(chatport) + "/'</green>"))
-        asyncio.get_event_loop().run_forever()
-    except KeyboardInterrupt:
+        server = websockets.serve(chatroom, netpdata, int(chatport))
+        await server
+        while True:
+            # TODO: still messed up with new line, need to figure it out
+            # how to refresh UI properly
+            with patch_stdout():
+                await sess.prompt_async(lambda: HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b>" + " > "),
+                                        bottom_toolbar="Press Ctrl+D or Press Ctrl+C or Press Ctrl+Q for Quit",
+                                        key_bindings=bindings, refresh_interval=0)
+
+    except (KeyboardInterrupt, EOFError):
         print("")
         print_formatted_text(
             HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <red><b>SNCTRYZERO was shut down</b></red>"))
@@ -118,7 +142,9 @@ def mainfunc(chatport, netprotc):
         elif netprotc == "ipprotv4":
             print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>IP version : 4</green>"))
             netpdata = "0.0.0.0"
-        servenow(netpdata, chatport)
+        asyncio.get_event_loop().run_until_complete(servenow(netpdata, chatport))
+        asyncio.get_event_loop().run_forever()
+
     except OSError:
         print_formatted_text(
             HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <red><b>The server could not be started up</b></red>"))
