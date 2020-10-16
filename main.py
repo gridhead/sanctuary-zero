@@ -37,6 +37,14 @@ async def notify_mesej(message):
     if USERS:
         await asyncio.wait([user.send(message) for user in USERS])
 
+# def chk_username_presence(mesg_json):
+#     new_name = mesg_json.split(sepr)[0]
+#     chatroom_id = mesg_json.split(sepr)[1]
+#     for userobj in USERS.values():
+#         if userobj != "" & new_name == userobj[0] & chatroom_id == userobj[1]:
+#             return False
+#     return True
+            
 
 async def chatroom(websocket, path):
     if not chekusav(websocket):
@@ -44,6 +52,8 @@ async def chatroom(websocket, path):
     try:
         async for mesgjson in websocket:
             if sepr in mesgjson and websocket in USERS:
+                # print(USERS)
+                # print(mesgjson)
                 if USERS[websocket] == "":
                     USERS[websocket] = [mesgjson.split(sepr)[0], mesgjson.split(sepr)[1]]
                     print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" + mesgjson.split(sepr)[1] + "</green>"))
