@@ -8,16 +8,16 @@ In the inclination to create an open and pleasing environment for project mainte
 
 We welcome the following examples of behaviour as it contributes in creating a positive environment.
 
-- Using pleasing and inclusive language
-- Being respectful to deviating viewpoints and experiences
+- Use of pleasing and inclusive language
+- To be respectful for deviating viewpoints and experiences
 - Gracefully accepting constructive criticism
 - Focusing on the betterment of the project and the community
 - Showing empathy towards other fellow contributors
 
 We do not welcome the following examples of behaviour by the participants.
 
-- Using sexualized languages or imagery and unwelcome sexual attention or advances
-- Trolling, insulting or passing derogatory comments and making personal/political comments
+- Use of sexualized languages or imagery and unwelcome sexual attention or advances
+- Troll, insult or use of passing derogatory comment as well as making personal/political comments
 - Doing public or private harassment
 - Publishing others' sensitive information without their consent
 - Other conduct which could reasonably be considered inappropriate in a professional setting
