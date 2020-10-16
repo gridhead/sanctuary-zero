@@ -85,9 +85,8 @@ def display_mesgtext(username: str, mesgtext: str) -> None:
     wrapped_lines = wrap_msgtext(mesgtext)
     for idx, line in enumerate(wrapped_lines):
         filling_username = formusnm(''.join([' ' for _ in range(len(username))]))
-        if idx == 0:
-            recv_template = f"[{obtntime()}] {formusnm(username)} > {line}"
-        else:
+        recv_template = f"[{obtntime()}] {formusnm(username)} > {line}"
+        if idx > 0:
             recv_template = f"[{obtntime()}] {formusnm(filling_username)} > {line}"
         print(recv_template)
 
