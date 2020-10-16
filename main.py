@@ -38,6 +38,24 @@ async def notify_mesej(message):
         await asyncio.wait([user.send(message) for user in USERS])
 
 
+def wrap_text(message, max_width, indent=24):
+    wrapped_message = str()
+    indent_text = str()
+    message_width = len(message)
+    width = max_width - indent
+
+    for i in range(indent):
+        indent_text += ' '
+
+    for i in range(0, message_width, width):
+        if i > 0:
+            wrapped_message += indent_text
+        wrapped_message += message[i : i + width]
+        if i < message_width - width:
+            wrapped_message += '\n'
+
+    return wrapped_message
+
 async def chatroom(websocket, path):
     if not chekusav(websocket):
         USERS[websocket] = ""
@@ -49,7 +67,8 @@ async def chatroom(websocket, path):
                     print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" + mesgjson.split(sepr)[1] + "</green>"))
                     await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[0] + sepr + mesgjson.split(sepr)[1] + sepr + str(getallus(mesgjson.split(sepr)[1])))
             else:
-                print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + str(mesgjson)))
+                terminal_columns = os.get_terminal_size()[0]
+                print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + wrap_text(str(mesgjson), terminal_columns)))
                 await notify_mesej(mesgjson)
     except ConnectionClosedError as EXPT:
         print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USEREXITED</b> > <red>" + USERS[websocket][0] + "@" + USERS[websocket][1] + "</red>"))
