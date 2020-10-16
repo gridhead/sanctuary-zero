@@ -26,16 +26,8 @@ def getallus(chatroom):
     return userlist
 
 
-def chekusav(sockobjc):
-    if sockobjc in USERS:
-        return True
-    else:
-        return False
-
-
 async def notify_mesej(message):
-    if USERS:
-        await asyncio.wait([user.send(message) for user in USERS])
+    if USERS: await asyncio.wait([user.send(message) for user in USERS])
 
 
 def wrap_text(message, max_width, indent=24):
@@ -56,8 +48,9 @@ def wrap_text(message, max_width, indent=24):
 
     return wrapped_message
 
+
 async def chatroom(websocket, path):
-    if not chekusav(websocket):
+    if not websocket in USERS:
         USERS[websocket] = ""
     try:
         async for mesgjson in websocket:
