@@ -132,8 +132,8 @@ def mainfunc(username, password, chatroom, servaddr):
                     print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>An invalid chatroom identity was entered</red>"))
                     sys.exit()
             else:
-                    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>An invalid chatroom identity was entered</red>"))
-                    sys.exit()
+                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>An invalid chatroom identity was entered</red>"))
+                sys.exit()
         if password is None:
             print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A new password was generated</green>"))
             password = Fernet.generate_key().decode("utf8")
