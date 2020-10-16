@@ -52,15 +52,24 @@ async def producer_handler(cphrsuit, websocket, username, chatroom, servaddr):
         senddata = cphrsuit.encrjson(senddata)
         await websocket.send(senddata)
 
+async def chk_username_presence(web_socket, user_name, chat_room):
+    await web_socket.send("CHKUSR"+sepr+user_name+sepr+chat_room)
+    async for recvdata in web_socket:
+        return recvdata 
 
 async def hello(servaddr, username, chatroom, password):
     async with websockets.connect(servaddr) as websocket:
-        cphrsuit = fernetst(password.encode("utf8"))
-        prod = asyncio.get_event_loop().create_task(producer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
-        cons = asyncio.get_event_loop().create_task(consumer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
-        await websocket.send(username+sepr+chatroom)
-        await prod
-        await cons
+        chkUserPresense = await chk_username_presence(websocket,username, chatroom)
+        if chkUserPresense == "False":
+            cphrsuit = fernetst(password.encode("utf8"))
+            prod = asyncio.get_event_loop().create_task(producer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
+            cons = asyncio.get_event_loop().create_task(consumer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
+            await websocket.send(username+sepr+chatroom)
+            await prod
+            await cons
+        else :
+            print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Username already exist in chatroom</red>"))
+            sys.exit()
         asyncio.get_event_loop().run_forever()
 
 

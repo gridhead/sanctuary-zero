@@ -21,7 +21,7 @@ def obtntime():
 def getallus(chatroom):
     userlist = []
     for indx in USERS:
-        if chatroom == USERS[indx][1]:
+        if USERS[indx]!="" and chatroom == USERS[indx][1]:
             userlist.append(USERS[indx][0])
     return userlist
 
@@ -37,13 +37,13 @@ async def notify_mesej(message):
     if USERS:
         await asyncio.wait([user.send(message) for user in USERS])
 
-# def chk_username_presence(mesg_json):
-#     new_name = mesg_json.split(sepr)[0]
-#     chatroom_id = mesg_json.split(sepr)[1]
-#     for userobj in USERS.values():
-#         if userobj != "" & new_name == userobj[0] & chatroom_id == userobj[1]:
-#             return False
-#     return True
+def chk_username_presence(mesg_json):
+    new_name = mesg_json.split(sepr)[1]
+    chatroom_id = mesg_json.split(sepr)[2]
+    if new_name in getallus(chatroom_id):
+        return True
+    else:
+        return False
             
 
 async def chatroom(websocket, path):
@@ -52,9 +52,9 @@ async def chatroom(websocket, path):
     try:
         async for mesgjson in websocket:
             if sepr in mesgjson and websocket in USERS:
-                # print(USERS)
-                # print(mesgjson)
-                if USERS[websocket] == "":
+                if (mesgjson.split(sepr)[0] == "CHKUSR") & (len(mesgjson.split(sepr)) == 3) :
+                    await websocket.send(str(chk_username_presence(mesgjson)))
+                elif USERS[websocket] == "":
                     USERS[websocket] = [mesgjson.split(sepr)[0], mesgjson.split(sepr)[1]]
                     print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" + mesgjson.split(sepr)[1] + "</green>"))
                     await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[0] + sepr + mesgjson.split(sepr)[1] + sepr + str(getallus(mesgjson.split(sepr)[1])))
