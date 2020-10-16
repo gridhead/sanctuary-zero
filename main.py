@@ -50,7 +50,9 @@ def wrap_text(message, max_width, indent=24):
     for i in range(0, message_width, width):
         if i > 0:
             wrapped_message += indent_text
-        wrapped_message += message[i : i + width] + '\n'
+        wrapped_message += message[i : i + width]
+        if i < message_width - width:
+            wrapped_message += '\n'
 
     return wrapped_message
 
