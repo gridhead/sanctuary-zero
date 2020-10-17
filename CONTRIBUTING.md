@@ -32,7 +32,7 @@ This project and everyone participating in it is governed by the code of conduct
 
 * Fork the repo. This will create a copy of the current repository that you can edit and make changes to.
 
-* Clone it on your machine. But first navigate to your forked repo and then, there you will find link provided by github to clone.
+* Clone it on your machine. But first navigate to your forked repo and then, there you will find link provided by GitHub to clone.
 
 * Add a upstream link to main branch in your cloned repo
     ```
@@ -54,6 +54,8 @@ This project and everyone participating in it is governed by the code of conduct
     ```
     git push origin <branch-name>
     ```
-* Create a PR from your repo on Github. Give proper title and description of the changes you made.
+* Create a PR from your repo on GitHub. Give a proper title and description for the changes you made.
 
-* If all goes well, your request will be approved and will be merged.
+* The maintainer of this repo will review the changes you have made. They will review if your changes are proper or not. And if they find any mistakes, they may request some changes. In that case, you should make changes in your forked repository and then commit that changes. And make sure you make changes in the same branch you previously requested PR from.
+
+* At last if maintainers think your PR is proper and correct then your request will be approved and will be merged.
