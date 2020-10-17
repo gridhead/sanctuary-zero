@@ -1,16 +1,15 @@
 import asyncio, websockets, time, json, click, secrets, os, sys
-from typing import List
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit import print_formatted_text, HTML
 from prompt_toolkit.validation import Validator, ValidationError
 from cryptography.fernet import Fernet, InvalidToken
 
-import textwrap
-
+from utils.helper_display import HelperDisplay
 
 sess = PromptSession()
 sepr = chr(969696)
+helper_display = HelperDisplay()
 
 
 class emtyfind(Validator):
@@ -41,7 +40,7 @@ async def consumer_handler(cphrsuit, websocket, username, chatroom, servaddr):
             else:
                 recvjson = json.loads(cphrsuit.decrjson(recvdata))
                 if recvjson["chatroom"] == chatroom and recvjson["username"] != username:
-                    display_mesgtext(recvjson["username"], recvjson["mesgtext"])
+                    print("[" + obtntime() + "] " + formusnm(recvjson["username"]) + " > " + helper_display.wrap_conversational_text(recvjson["mesgtext"]))
 
         except Exception as EXPT:
             pass
@@ -66,31 +65,6 @@ async def hello(servaddr, username, chatroom, password):
         await prod
         await cons
         asyncio.get_event_loop().run_forever()
-
-
-def wrap_msgtext(mesgtext: str, set_width: int = 80) -> List[str]:
-    """ Wrap text into list
-        text length is set and determined as a breakpoint
-    """
-    if not isinstance(mesgtext, str):
-        return []
-    return textwrap.wrap(mesgtext, width=set_width)
-
-
-def display_mesgtext(username: str, mesgtext: str) -> None:
-    """ Display user text on client side """
-    if not all([isinstance(mesgtext, str), isinstance(mesgtext, str)]):
-        return None
-
-    wrapped_lines = wrap_msgtext(mesgtext)
-    for idx, line in enumerate(wrapped_lines):
-        filling_username = formusnm(''.join([' ' for _ in range(len(username))]))
-        recv_template = f"[{obtntime()}] {formusnm(username)} > {line}"
-        if idx > 0:
-            recv_template = f"[{obtntime()}] {formusnm(filling_username)} > {line}"
-        print(recv_template)
-
-    return None
 
 
 def obtntime():
