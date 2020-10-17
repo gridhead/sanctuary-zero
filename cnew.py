@@ -55,23 +55,33 @@ async def producer_handler(cphrsuit, websocket, username, chatroom, servaddr):
     except EOFError:
         raise KeyboardInterrupt
 
+async def chk_username_presence(web_socket, user_name, chat_room):
+    await web_socket.send("CHKUSR"+sepr+user_name+sepr+chat_room)
+    async for recvdata in web_socket:
+        return recvdata 
 
 async def hello(servaddr, username, chatroom, password):
     async with websockets.connect(servaddr) as websocket:
-        try:
-            cphrsuit = fernetst(password.encode("utf8"))
-            prod = asyncio.get_event_loop().create_task(producer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
-            cons = asyncio.get_event_loop().create_task(consumer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
-            await websocket.send(username + sepr + chatroom)
-            await prod
-            await cons
-            asyncio.get_event_loop().run_forever()
-        except Exception as e:
+		try:
+			chkUserPresence = await chk_username_presence(websocket,username, chatroom)
+			if chkUserPresence == "False":
+				cphrsuit = fernetst(password.encode("utf8"))
+				prod = asyncio.get_event_loop().create_task(producer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
+				cons = asyncio.get_event_loop().create_task(consumer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
+				await websocket.send(username+sepr+chatroom)
+				await prod
+				await cons
+				asyncio.get_event_loop().run_forever()
+			else :
+				print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Username already exist in chatroom</red>"))
+				await websocket.close()
+				sys.exit()
+		except Exception as e:
             if websocket.closed:
                 print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>A connection to the server was lost</red>".format(e)))
             raise KeyboardInterrupt
 
-
+			
 def obtntime():
     timestmp = time.localtime()
     timehour = str(timestmp.tm_hour)

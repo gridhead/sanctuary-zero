@@ -21,7 +21,7 @@ def obtntime():
 def getallus(chatroom):
     userlist = []
     for indx in USERS:
-        if chatroom == USERS[indx][1]:
+        if USERS[indx]!="" and chatroom == USERS[indx][1]:
             userlist.append(USERS[indx][0])
     return userlist
 
@@ -48,6 +48,14 @@ def wrap_text(message, max_width, indent=24):
 
     return wrapped_message
 
+def chk_username_presence(mesg_json):
+    new_name = mesg_json.split(sepr)[1]
+    chatroom_id = mesg_json.split(sepr)[2]
+    if new_name in getallus(chatroom_id):
+        return True
+    else:
+        return False
+            
 
 async def chatroom(websocket, path):
     if not websocket in USERS:
@@ -55,7 +63,15 @@ async def chatroom(websocket, path):
     try:
         async for mesgjson in websocket:
             if sepr in mesgjson and websocket in USERS:
-                if USERS[websocket] == "":
+                if (mesgjson.split(sepr)[0] == "CHKUSR") & (len(mesgjson.split(sepr)) == 3) :
+                    result = str(chk_username_presence(mesgjson))
+                    await websocket.send(result)
+                    if(result == "True"):
+                        await websocket.close()
+                        USERS.pop(websocket)
+                        return
+                    print("Done..")
+                elif USERS[websocket] == "":
                     USERS[websocket] = [mesgjson.split(sepr)[0], mesgjson.split(sepr)[1]]
                     print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" + mesgjson.split(sepr)[1] + "</green>"))
                     await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[0] + sepr + mesgjson.split(sepr)[1] + sepr + str(getallus(mesgjson.split(sepr)[1])))
