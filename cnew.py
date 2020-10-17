@@ -137,7 +137,7 @@ def formusnm(username):
 @click.version_option(version="04092020", prog_name="SNCTRYZERO Client by t0xic0der")
 def mainfunc(username, password, chatroom, servaddr):
     try:
-        os.system("clear")
+        click.clear()
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <b><seagreen>Starting Sanctuary ZERO v04092020 up...</seagreen></b>"))
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Connected to '" + servaddr + "' successfully</seagreen>"))
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Session started at " + str(time.ctime()) + "</seagreen>"))
