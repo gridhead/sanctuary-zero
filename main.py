@@ -53,7 +53,13 @@ async def chatroom(websocket, path):
         async for mesgjson in websocket:
             if sepr in mesgjson and websocket in USERS:
                 if (mesgjson.split(sepr)[0] == "CHKUSR") & (len(mesgjson.split(sepr)) == 3) :
-                    await websocket.send(str(chk_username_presence(mesgjson)))
+                    result = str(chk_username_presence(mesgjson))
+                    await websocket.send(result)
+                    if(result == "True"):
+                        await websocket.close()
+                        USERS.pop(websocket)
+                        return
+                    print("Done..")
                 elif USERS[websocket] == "":
                     USERS[websocket] = [mesgjson.split(sepr)[0], mesgjson.split(sepr)[1]]
                     print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" + mesgjson.split(sepr)[1] + "</green>"))

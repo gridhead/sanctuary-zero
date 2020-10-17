@@ -60,7 +60,7 @@ async def chk_username_presence(web_socket, user_name, chat_room):
 async def hello(servaddr, username, chatroom, password):
     async with websockets.connect(servaddr) as websocket:
         chkUserPresence = await chk_username_presence(websocket,username, chatroom)
-        if chkUserPresense == "False":
+        if chkUserPresence == "False":
             cphrsuit = fernetst(password.encode("utf8"))
             prod = asyncio.get_event_loop().create_task(producer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
             cons = asyncio.get_event_loop().create_task(consumer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
@@ -69,6 +69,7 @@ async def hello(servaddr, username, chatroom, password):
             await cons
         else :
             print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Username already exist in chatroom</red>"))
+            await websocket.close()
             sys.exit()
         asyncio.get_event_loop().run_forever()
 
