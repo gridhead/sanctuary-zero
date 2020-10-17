@@ -21,8 +21,7 @@ bindings = KeyBindings()
 @bindings.add('c-q')
 def _(event):
     " Exit when `c-x` is pressed. "
-    print_formatted_text(
-        HTML("\n"+"[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <red><b>Bye ..</b></red>"))
+    print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <red><b>Bye ..</b></red>"))
     raise KeyboardInterrupt
 
 
@@ -76,50 +75,35 @@ async def chatroom(websocket, path):
             if sepr in mesgjson and websocket in USERS:
                 if USERS[websocket] == "":
                     USERS[websocket] = [mesgjson.split(sepr)[0], mesgjson.split(sepr)[1]]
-                    print_formatted_text(HTML(
-                        "\n" + "[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" +
-                        mesgjson.split(sepr)[1] + "</green>"))
-                    await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[0] + sepr +
-                                       mesgjson.split(sepr)[1] + sepr + str(getallus(mesgjson.split(sepr)[1])))
+                    print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" +mesgjson.split(sepr)[1] + "</green>"))
+                    await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[0] + sepr + mesgjson.split(sepr)[1] + sepr + str(getallus(mesgjson.split(sepr)[1])))
 
             else:
                 terminal_columns = os.get_terminal_size()[0]
-                print_formatted_text(HTML(
-                    "\n" + "[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + wrap_text(str(mesgjson),
-                                                                                        terminal_columns)))
+                print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + wrap_text(str(mesgjson), terminal_columns)))
                 await notify_mesej(mesgjson)
 
     except ConnectionClosedError as EXPT:
-        print_formatted_text(HTML(
-            "\n" + "[" + obtntime() + "] " + "<b>USEREXITED</b> > <red>" + USERS[websocket][0] + "@" + USERS[websocket][
-                1] + "</red>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USEREXITED</b> > <red>" + USERS[websocket][0] + "@" + USERS[websocket][1] + "</red>"))
         userlist = getallus(USERS[websocket][1])
         userlist.remove(USERS[websocket][0])
-        leftmesg = "SNCTRYZERO" + sepr + "USEREXITED" + sepr + USERS[websocket][0] + sepr + USERS[websocket][
-            1] + sepr + str(userlist)
+        leftmesg = "SNCTRYZERO" + sepr + "USEREXITED" + sepr + USERS[websocket][0] + sepr + USERS[websocket][1] + sepr + str(userlist)
         USERS.pop(websocket)
         await notify_mesej(leftmesg)
 
 
 async def servenow(netpdata="127.0.0.1", chatport="9696"):
     try:
-        print_formatted_text(HTML(
-            "[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>SNCTRYZERO was started up on 'ws://" + str(
-                netpdata) + ":" + str(chatport) + "/'</green>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>SNCTRYZERO was started up on 'ws://" + str(netpdata) + ":" + str(chatport) + "/'</green>"))
         server = websockets.serve(chatroom, netpdata, int(chatport))
         await server
         while True:
-            # TODO: still messed up with new line, need to figure it out
-            # how to refresh UI properly
             with patch_stdout():
-                await sess.prompt_async(lambda: HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b>" + " > "),
-                                        bottom_toolbar="Press Ctrl+D or Press Ctrl+C or Press Ctrl+Q for Quit",
-                                        key_bindings=bindings, refresh_interval=0)
+                await sess.prompt_async(lambda: HTML(""), key_bindings=bindings, refresh_interval=0)
 
     except (KeyboardInterrupt, EOFError):
         print("")
-        print_formatted_text(
-            HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <red><b>SNCTRYZERO was shut down</b></red>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <red><b>SNCTRYZERO was shut down</b></red>"))
         sys.exit()
 
 
@@ -133,8 +117,7 @@ async def servenow(netpdata="127.0.0.1", chatport="9696"):
 def mainfunc(chatport, netprotc):
     try:
         os.system("clear")
-        print_formatted_text(HTML(
-            "[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green><b>Starting SNCTRYZERO v04092020...</b></green>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green><b>Starting SNCTRYZERO v04092020...</b></green>"))
         netpdata = ""
         if netprotc == "ipprotv6":
             print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>IP version : 6</green>"))
