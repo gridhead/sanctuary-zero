@@ -3,7 +3,7 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit import print_formatted_text, HTML
 from prompt_toolkit.validation import Validator, ValidationError
-from cryptography.fernet import Fernet, InvalidToken
+from cryptography.fernet import Fernet
 
 
 sess = PromptSession()
@@ -44,13 +44,16 @@ async def consumer_handler(cphrsuit, websocket, username, chatroom, servaddr):
 
 
 async def producer_handler(cphrsuit, websocket, username, chatroom, servaddr):
-    footelem = HTML("<b>[" + chatroom + "]</b>" + " " + username.strip() + " - Sanctuary ZERO v04092020 running on '" + servaddr + "' - Hit Ctrl+C to EXIT")
-    while True:
-        with patch_stdout():
-            mesgtext = await sess.prompt_async("[" + obtntime() + "] " + formusnm(str(username)) + " > ", bottom_toolbar=footelem, validator=emtyfind())
-        senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": mesgtext.strip()})
-        senddata = cphrsuit.encrjson(senddata)
-        await websocket.send(senddata)
+    try:
+        footelem = HTML("<b>[" + chatroom + "]</b>" + " " + username.strip() + " - Sanctuary ZERO v04092020 running on '" + servaddr + "' - Hit Ctrl+C to EXIT")
+        while True:
+            with patch_stdout():
+                mesgtext = await sess.prompt_async(lambda:"[" + obtntime() + "] " + formusnm(str(username)) + " > ", bottom_toolbar=footelem, validator=emtyfind(), refresh_interval=0.5)
+            senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": mesgtext.strip()})
+            senddata = cphrsuit.encrjson(senddata)
+            await websocket.send(senddata)
+    except EOFError:
+        raise KeyboardInterrupt
 
 async def chk_username_presence(web_socket, user_name, chat_room):
     await web_socket.send("CHKUSR"+sepr+user_name+sepr+chat_room)
@@ -59,21 +62,26 @@ async def chk_username_presence(web_socket, user_name, chat_room):
 
 async def hello(servaddr, username, chatroom, password):
     async with websockets.connect(servaddr) as websocket:
-        chkUserPresence = await chk_username_presence(websocket,username, chatroom)
-        if chkUserPresence == "False":
-            cphrsuit = fernetst(password.encode("utf8"))
-            prod = asyncio.get_event_loop().create_task(producer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
-            cons = asyncio.get_event_loop().create_task(consumer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
-            await websocket.send(username+sepr+chatroom)
-            await prod
-            await cons
-        else :
-            print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Username already exist in chatroom</red>"))
-            await websocket.close()
-            sys.exit()
-        asyncio.get_event_loop().run_forever()
+		try:
+			chkUserPresence = await chk_username_presence(websocket,username, chatroom)
+			if chkUserPresence == "False":
+				cphrsuit = fernetst(password.encode("utf8"))
+				prod = asyncio.get_event_loop().create_task(producer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
+				cons = asyncio.get_event_loop().create_task(consumer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
+				await websocket.send(username+sepr+chatroom)
+				await prod
+				await cons
+				asyncio.get_event_loop().run_forever()
+			else :
+				print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Username already exist in chatroom</red>"))
+				await websocket.close()
+				sys.exit()
+		except Exception as e:
+            if websocket.closed:
+                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>A connection to the server was lost</red>".format(e)))
+            raise KeyboardInterrupt
 
-
+			
 def obtntime():
     timestmp = time.localtime()
     timehour = str(timestmp.tm_hour)
@@ -142,8 +150,8 @@ def mainfunc(username, password, chatroom, servaddr):
                     print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>An invalid chatroom identity was entered</red>"))
                     sys.exit()
             else:
-                    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>An invalid chatroom identity was entered</red>"))
-                    sys.exit()
+                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>An invalid chatroom identity was entered</red>"))
+                sys.exit()
         if password is None:
             print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A new password was generated</green>"))
             password = Fernet.generate_key().decode("utf8")
