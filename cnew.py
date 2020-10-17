@@ -5,9 +5,11 @@ from prompt_toolkit import print_formatted_text, HTML
 from prompt_toolkit.validation import Validator, ValidationError
 from cryptography.fernet import Fernet
 
+from utils.helper_display import HelperDisplay
 
 sess = PromptSession()
 sepr = chr(969696)
+helper_display = HelperDisplay()
 
 
 class emtyfind(Validator):
@@ -38,7 +40,8 @@ async def consumer_handler(cphrsuit, websocket, username, chatroom, servaddr):
             else:
                 recvjson = json.loads(cphrsuit.decrjson(recvdata))
                 if recvjson["chatroom"] == chatroom and recvjson["username"] != username:
-                    print("[" + obtntime() + "] " + formusnm(recvjson["username"]) + " > " + recvjson["mesgtext"])
+                    print("[" + obtntime() + "] " + formusnm(recvjson["username"]) + " > " + helper_display.wrap_conversational_text(recvjson["mesgtext"]))
+
         except Exception as EXPT:
             pass
 
@@ -55,10 +58,12 @@ async def producer_handler(cphrsuit, websocket, username, chatroom, servaddr):
     except EOFError:
         raise KeyboardInterrupt
 
+
 async def chk_username_presence(web_socket, user_name, chat_room):
     await web_socket.send("CHKUSR"+sepr+user_name+sepr+chat_room)
     async for recvdata in web_socket:
         return recvdata 
+
 
 async def hello(servaddr, username, chatroom, password):
     async with websockets.connect(servaddr) as websocket:

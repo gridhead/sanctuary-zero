@@ -2,9 +2,11 @@ import asyncio, websockets, sys, click, time, os
 from prompt_toolkit import print_formatted_text, HTML
 from websockets.exceptions import ConnectionClosedError
 
+from utils.helper_display import HelperDisplay
 
 USERS = {}
 sepr = chr(969696)
+helper_display = HelperDisplay()
 
 
 def obtntime():
@@ -35,18 +37,16 @@ def wrap_text(message, max_width, indent=24):
     indent_text = str()
     message_width = len(message)
     width = max_width - indent
-
     for i in range(indent):
         indent_text += ' '
-
     for i in range(0, message_width, width):
         if i > 0:
             wrapped_message += indent_text
         wrapped_message += message[i : i + width]
         if i < message_width - width:
             wrapped_message += '\n'
-
     return wrapped_message
+
 
 def chk_username_presence(mesg_json):
     new_name = mesg_json.split(sepr)[1]
@@ -55,7 +55,7 @@ def chk_username_presence(mesg_json):
         return True
     else:
         return False
-            
+
 
 async def chatroom(websocket, path):
     if not websocket in USERS:
@@ -75,8 +75,7 @@ async def chatroom(websocket, path):
                     print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" + mesgjson.split(sepr)[1] + "</green>"))
                     await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[0] + sepr + mesgjson.split(sepr)[1] + sepr + str(getallus(mesgjson.split(sepr)[1])))
             else:
-                terminal_columns = os.get_terminal_size()[0]
-                print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + wrap_text(str(mesgjson), terminal_columns)))
+                print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + helper_display.wrap_text(str(mesgjson))))
                 await notify_mesej(mesgjson)
     except ConnectionClosedError as EXPT:
         print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USEREXITED</b> > <red>" + USERS[websocket][0] + "@" + USERS[websocket][1] + "</red>"))
