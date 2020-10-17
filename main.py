@@ -69,8 +69,7 @@ async def chatroom(websocket, path):
                     if(result == "True"):
                         await websocket.close()
                         USERS.pop(websocket)
-                        return
-                    print("Done..")
+                        #return
                 elif USERS[websocket] == "":
                     USERS[websocket] = [mesgjson.split(sepr)[0], mesgjson.split(sepr)[1]]
                     print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" + mesgjson.split(sepr)[1] + "</green>"))
