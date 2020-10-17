@@ -1,9 +1,11 @@
 import asyncio, websockets, time, json, click, secrets, os, sys
+
+
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit import print_formatted_text, HTML
 from prompt_toolkit.validation import Validator, ValidationError
-from cryptography.fernet import Fernet, InvalidToken
+from cryptography.fernet import Fernet
 
 
 sess = PromptSession()
@@ -44,24 +46,33 @@ async def consumer_handler(cphrsuit, websocket, username, chatroom, servaddr):
 
 
 async def producer_handler(cphrsuit, websocket, username, chatroom, servaddr):
-    footelem = HTML("<b>[" + chatroom + "]</b>" + " " + username.strip() + " - Sanctuary ZERO v04092020 running on '" + servaddr + "' - Hit Ctrl+C to EXIT")
-    while True:
-        with patch_stdout():
-            mesgtext = await sess.prompt_async(lambda:"[" + obtntime() + "] " + formusnm(str(username)) + " > ", bottom_toolbar=footelem, validator=emtyfind(), refresh_interval=0.5)
-        senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": mesgtext.strip()})
-        senddata = cphrsuit.encrjson(senddata)
-        await websocket.send(senddata)
+    try:
+        footelem = HTML("<b>[" + chatroom + "]</b>" + " " + username.strip() + " - Sanctuary ZERO v04092020 running on '" + servaddr + "' - Hit Ctrl+C to EXIT")
+        while True:
+            with patch_stdout():
+                mesgtext = await sess.prompt_async(lambda:"[" + obtntime() + "] " + formusnm(str(username)) + " > ", bottom_toolbar=footelem, validator=emtyfind(), refresh_interval=0.5)
+            senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": mesgtext.strip()})
+            senddata = cphrsuit.encrjson(senddata)
+            await websocket.send(senddata)
+
+    except EOFError:
+        raise KeyboardInterrupt
 
 
 async def hello(servaddr, username, chatroom, password):
     async with websockets.connect(servaddr) as websocket:
-        cphrsuit = fernetst(password.encode("utf8"))
-        prod = asyncio.get_event_loop().create_task(producer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
-        cons = asyncio.get_event_loop().create_task(consumer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
-        await websocket.send(username+sepr+chatroom)
-        await prod
-        await cons
-        asyncio.get_event_loop().run_forever()
+        try:
+            cphrsuit = fernetst(password.encode("utf8"))
+            prod = asyncio.get_event_loop().create_task(producer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
+            cons = asyncio.get_event_loop().create_task(consumer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
+            await websocket.send(username + sepr + chatroom)
+            await prod
+            await cons
+            asyncio.get_event_loop().run_forever()
+        except Exception as e:
+            if websocket.closed:
+                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Can't Establish Connection to server. Detail: {}</red>".format(e)))
+            raise KeyboardInterrupt
 
 
 def obtntime():
