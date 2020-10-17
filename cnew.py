@@ -59,7 +59,7 @@ async def chk_username_presence(web_socket, user_name, chat_room):
 
 async def hello(servaddr, username, chatroom, password):
     async with websockets.connect(servaddr) as websocket:
-        chkUserPresense = await chk_username_presence(websocket,username, chatroom)
+        chkUserPresence = await chk_username_presence(websocket,username, chatroom)
         if chkUserPresense == "False":
             cphrsuit = fernetst(password.encode("utf8"))
             prod = asyncio.get_event_loop().create_task(producer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
