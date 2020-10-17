@@ -1,6 +1,4 @@
 import asyncio, websockets, time, json, click, secrets, os, sys
-
-
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit import print_formatted_text, HTML
@@ -54,7 +52,6 @@ async def producer_handler(cphrsuit, websocket, username, chatroom, servaddr):
             senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": mesgtext.strip()})
             senddata = cphrsuit.encrjson(senddata)
             await websocket.send(senddata)
-
     except EOFError:
         raise KeyboardInterrupt
 
@@ -71,7 +68,7 @@ async def hello(servaddr, username, chatroom, password):
             asyncio.get_event_loop().run_forever()
         except Exception as e:
             if websocket.closed:
-                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Can't Establish Connection to server. Detail: {}</red>".format(e)))
+                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>A connection to the server was lost</red>".format(e)))
             raise KeyboardInterrupt
 
 
