@@ -1,6 +1,6 @@
 """
 FILE: helper_display.py
-DESCRIPTION: A utilities to help text display
+DESCRIPTION: Utilities to help text display
 DATE: 17-Oct-2020
 """
 import os
@@ -10,7 +10,7 @@ from typing import List
 
 class HelperDisplay:
     """
-    Utilitiy Helper for Displaying Data
+    Utility Helper for Displaying Data
     Current methods:
         1.) wrap_text
         2.) wrap_conversational_text
