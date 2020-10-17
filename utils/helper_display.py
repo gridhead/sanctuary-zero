@@ -45,7 +45,7 @@ class HelperDisplay:
         wrapped_message = str()
         for idx, line in enumerate(wrapped_lines):
             indent_text = ' ' * indent if idx > 0 else ''
-            new_line = '\n' if idx < len(line)-1 else ''
+            new_line = '\n' if idx < len(wrapped_lines)-1 else ''
             indented_line = indent_text + line + new_line
             wrapped_message += indented_line
 
