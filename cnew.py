@@ -82,7 +82,7 @@ async def hello(servaddr, username, chatroom, password):
                 sys.exit()
         except Exception as EXPT:
             if websocket.closed:
-                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>A connection to the server was lost</red>".format(e)))
+                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>A connection to the server was lost</red>".format(EXPT)))
             raise KeyboardInterrupt
 
 			
