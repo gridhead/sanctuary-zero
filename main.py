@@ -32,22 +32,6 @@ async def notify_mesej(message):
     if USERS: await asyncio.wait([user.send(message) for user in USERS])
 
 
-def wrap_text(message, max_width, indent=24):
-    wrapped_message = str()
-    indent_text = str()
-    message_width = len(message)
-    width = max_width - indent
-    for i in range(indent):
-        indent_text += ' '
-    for i in range(0, message_width, width):
-        if i > 0:
-            wrapped_message += indent_text
-        wrapped_message += message[i : i + width]
-        if i < message_width - width:
-            wrapped_message += '\n'
-    return wrapped_message
-
-
 def chk_username_presence(mesg_json):
     new_name = mesg_json.split(sepr)[1]
     chatroom_id = mesg_json.split(sepr)[2]
