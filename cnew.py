@@ -41,7 +41,6 @@ async def consumer_handler(cphrsuit, websocket, username, chatroom, servaddr):
                 recvjson = json.loads(cphrsuit.decrjson(recvdata))
                 if recvjson["chatroom"] == chatroom and recvjson["username"] != username:
                     print("[" + obtntime() + "] " + formusnm(recvjson["username"]) + " > " + helper_display.wrap_conversational_text(recvjson["mesgtext"]))
-
         except Exception as EXPT:
             pass
 
@@ -51,10 +50,7 @@ async def producer_handler(cphrsuit, websocket, username, chatroom, servaddr):
         footelem = HTML("<b>[" + chatroom + "]</b>" + " " + username.strip() + " - Sanctuary ZERO v04092020 running on '" + servaddr + "' - Hit Ctrl+C to EXIT")
         while True:
             with patch_stdout():
-                mesgtext = await sess.prompt_async(lambda:"[" + obtntime() + "] " + formusnm(str(username)) + " > ", bottom_toolbar=footelem,
-                                                                                                                     validator=emtyfind(),
-                                                                                                                     refresh_interval=0.5,
-                                                                                                                     prompt_continuation=lambda width, line_number, is_soft_wrap: ' ' * width)
+                mesgtext = await sess.prompt_async(lambda:"[" + obtntime() + "] " + formusnm(str(username)) + " > ", bottom_toolbar=footelem, validator=emtyfind(), refresh_interval=0.5, prompt_continuation=lambda width, line_number, is_soft_wrap: " " * width)
             senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": mesgtext.strip()})
             senddata = cphrsuit.encrjson(senddata)
             await websocket.send(senddata)
@@ -103,7 +99,7 @@ def obtntime():
 
 def randgene():
     numb = 8
-    randstrg = ''.join(secrets.choice("ABCDEF" + "0123456789") for i in range(numb))
+    randstrg = "".join(secrets.choice("ABCDEF" + "0123456789") for i in range(numb))
     return randstrg
 
 

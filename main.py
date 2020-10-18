@@ -1,8 +1,8 @@
 import asyncio, websockets, sys, click, time, os
 from prompt_toolkit import print_formatted_text, HTML
 from websockets.exceptions import ConnectionClosedError
-
 from utils.helper_display import HelperDisplay
+
 
 USERS = {}
 sepr = chr(969696)
@@ -53,7 +53,6 @@ async def chatroom(websocket, path):
                     if(result == "True"):
                         await websocket.close()
                         USERS.pop(websocket)
-                        #return
                 elif USERS[websocket] == "":
                     USERS[websocket] = [mesgjson.split(sepr)[0], mesgjson.split(sepr)[1]]
                     print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" + mesgjson.split(sepr)[1] + "</green>"))
