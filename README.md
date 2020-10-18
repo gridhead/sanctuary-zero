@@ -32,6 +32,10 @@ Jump right into the project wiki to know more about it.
 3. [Server setup](https://github.com/t0xic0der/sanctuary-zero/wiki/Server-setup)
 4. [Contributors](https://github.com/t0xic0der/sanctuary-zero/graphs/contributors)
 
+## Platforms supported
+1. GNU/Linux (Tested on Arch Linux, Fedora 32, Ubuntu 20.04)
+2. Microsoft Windows (Tested on Windows 10 Build 1909)
+
 ## Screenshots
 ### Server
 ![](pictures/back.png)
