@@ -65,7 +65,7 @@ async def chatroom(websocket, path):
                 if str(mesgjson) == "/list":
                    await send_chatroommembers_list(websocket)
                 else:
-                    print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + str(mesgjson)))
+                    print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + helper_display.wrap_text(str(mesgjson))))
                     await notify_mesej(mesgjson)
     except ConnectionClosedError as EXPT:
         print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USEREXITED</b> > <red>" + USERS[websocket][0] + "@" + USERS[websocket][1] + "</red>"))

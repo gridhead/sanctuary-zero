@@ -51,7 +51,7 @@ async def producer_handler(cphrsuit, websocket, username, chatroom, servaddr):
         footelem = HTML("<b>[" + chatroom + "]</b>" + " <b>" + username.strip() + "</b> > End-to-end encryption enabled on '" + servaddr + "' - Hit Ctrl+C to EXIT")
         while True:
             with patch_stdout():
-                mesgtext = await sess.prompt_async("[" + obtntime() + "] " + formusnm(str(username)) + " > ", bottom_toolbar=footelem, validator=emtyfind())
+                mesgtext = await sess.prompt_async(lambda:"[" + obtntime() + "] " + formusnm(str(username)) + " > ", bottom_toolbar=footelem, validator=emtyfind(), refresh_interval=0.5, prompt_continuation=lambda width, line_number, is_soft_wrap: " " * width)
             if mesgtext.strip() == "/list":
                 senddata = mesgtext.strip()
             else:
