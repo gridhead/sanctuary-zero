@@ -1,4 +1,4 @@
-import asyncio, websockets, time, json, click, secrets, os, sys
+import asyncio, websockets, time, json, click, secrets, os, sys, socket
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit import print_formatted_text, HTML
@@ -126,6 +126,25 @@ def formusnm(username):
     elif len(username) > 10:    return username[0:10]
     else:                       return username
 
+def check_socket(servaddr):
+    addr= [x.strip().strip("/") for x in servaddr.split(":")] #['ws',ip, port_no]
+    if addr[0]=='ws':
+        try:
+            addr[2]= int(addr[2])
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.settimeout(1)
+                if sock.connect_ex((addr[1], addr[2])) == 0:
+                    return True
+                else:
+                    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Server not set up at '" + servaddr +  "</red>"))
+                    return False
+        except ValueError:
+            print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Invalid port number: '"+addr[2]+"' </red>"))
+            return False
+        except Exception:
+            return False
+    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Invalid protocol used, example use, 'ws://127.0.0.1:9696' </red>"))
+    return False
 
 @click.command()
 @click.option("-u", "--username", "username", help="Enter the username that you would identify yourself with", required=True)
@@ -139,6 +158,9 @@ def mainfunc(username, password, chatroom, servaddr):
         print_formatted_text("\n")
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <b><seagreen>Starting Sanctuary ZERO v18102020 up...</seagreen></b>"))
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Attempted connection to '" + servaddr + "' at " + str(time.ctime()) + "</seagreen>"))
+        if not check_socket(servaddr):
+            print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Attempted connection to '" + servaddr + "' failed at " + str(time.ctime()) +" due to invalid url" "</red>"))
+            sys.exit()
         if username.strip() != "":
             if chatroom is None:
                 print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A new chatroom was generated</green>"))
