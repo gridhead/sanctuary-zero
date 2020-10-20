@@ -8,14 +8,7 @@ from cryptography.fernet import Fernet, InvalidToken
 
 sess = PromptSession()
 sepr = chr(969696)
-
-
-class emtyfind(Validator):
-    def validate(self, document):
-        text = document.text
-        if text.strip() == "":
-            raise ValidationError(message="You cannot send an empty message")
-
+websocket = None
 
 class fernetst():
     def __init__(self, pswd):
@@ -27,8 +20,13 @@ class fernetst():
     def decrjson(self, data):
         return self.suit.decrypt(data.encode("utf8")).decode("utf8")
 
+class emtyfind(Validator):
+    def validate(self, document):
+        text = document.text
+        if text.strip() == "":
+            raise ValidationError(message="You cannot send an empty message")
 
-async def consumer_handler(cphrsuit, websocket, username, chatroom, servaddr):
+async def consumer_handler(cphrsuit, username, chatroom, servaddr):
     async for recvdata in websocket:
         try:
             if recvdata.split(sepr)[0] == "SNCTRYZERO" and recvdata.split(sepr)[1] == "USERJOINED" and recvdata.split(sepr)[3] == chatroom:
@@ -43,7 +41,7 @@ async def consumer_handler(cphrsuit, websocket, username, chatroom, servaddr):
             pass
 
 
-async def producer_handler(cphrsuit, websocket, username, chatroom, servaddr):
+async def producer_handler(cphrsuit, username, chatroom, servaddr):
     footelem = HTML("<b>[" + chatroom + "]</b>" + " " + username.strip() + " - Sanctuary ZERO v04092020 running on '" + servaddr + "' - Hit Ctrl+C to EXIT")
     while True:
         with patch_stdout():
@@ -53,15 +51,16 @@ async def producer_handler(cphrsuit, websocket, username, chatroom, servaddr):
         await websocket.send(senddata)
 
 
-async def hello(servaddr, username, chatroom, password):
-    async with websockets.connect(servaddr) as websocket:
-        cphrsuit = fernetst(password.encode("utf8"))
-        prod = asyncio.get_event_loop().create_task(producer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
-        cons = asyncio.get_event_loop().create_task(consumer_handler(cphrsuit, websocket, str(username), str(chatroom), str(servaddr)))
-        await websocket.send(username+sepr+chatroom)
-        await prod
-        await cons
-        asyncio.get_event_loop().run_forever()
+async def hello(username, chatroom, password,servaddr):
+    cphrsuit = fernetst(password.encode("utf8"))
+    prod = asyncio.get_event_loop().create_task(producer_handler(cphrsuit, str(username), str(chatroom), str(servaddr)))
+    cons = asyncio.get_event_loop().create_task(consumer_handler(cphrsuit, str(username), str(chatroom), str(servaddr)))
+    # await websocket.send(username+sepr+chatroom)
+    # data = await websocket.recv()
+    # print(data)
+    await prod
+    await cons
+    asyncio.get_event_loop().run_forever()
 
 
 def obtntime():
@@ -74,37 +73,30 @@ def obtntime():
     if int(timesecs) < 10:  timesecs = "0" + timesecs
     return timehour + ":" + timemint + ":" + timesecs
 
-
-def randgene():
-    numb = 8
-    randstrg = ''.join(secrets.choice("ABCDEF" + "0123456789") for i in range(numb))
-    return randstrg
-
-
-def chekroom(strg):
-    if len(strg) != 8:
+async def chekroom(username,chatroom,password,servaddr):
+    if len(chatroom)!=8:
         return False
-    else:
-        try:
-            geee = int(strg, 16)
-            return True
-        except ValueError:
-            return False
-
-
-def chekpass(pswd):
     try:
-        suit = Fernet(pswd)
-        return True
-    except:
+        geee = int(chatroom,16)
+    except ValueError:
         return False
-
+    global websocket
+    websocket = await websockets.connect(servaddr)
+    await websocket.send('query'+sepr+chatroom+sepr+password+sepr+username)
+    response = await websocket.recv()
+    return response
 
 def formusnm(username):
     if len(username) < 10:      return username + " " * (10 - len(username))
     elif len(username) > 10:    return username[0:10]
     else:                       return username
 
+async def askserver(username,servaddr):
+    global websocket 
+    websocket = await websockets.connect(servaddr)
+    await websocket.send('new'+sepr+username)
+    response = await websocket.recv()
+    return response
 
 @click.command()
 @click.option("-u", "--username", "username", help="Enter the username that you would identify yourself with", required=True)
@@ -113,6 +105,10 @@ def formusnm(username):
 @click.option("-s", "--servaddr", "servaddr", help="Enter the server address you would want to connect to", required=True)
 @click.version_option(version="04092020", prog_name="SNCTRYZERO Client by t0xic0der")
 def mainfunc(username, password, chatroom, servaddr):
+    '''
+    Added the server side generation of chatroom id
+    To request to join a server, ask if the supplied chatroom is valid in server
+    '''
     try:
         os.system("clear")
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <b><seagreen>Starting Sanctuary ZERO v04092020 up...</seagreen></b>"))
@@ -120,27 +116,22 @@ def mainfunc(username, password, chatroom, servaddr):
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Session started at " + str(time.ctime()) + "</seagreen>"))
         if chatroom is None:
             print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A new chatroom was generated</green>"))
-            chatroom = randgene()
+            # if i don't have chatroom, no password will be supplied
+            output = asyncio.get_event_loop().run_until_complete(askserver(username, servaddr))
+            chatroom = output.split(sepr)[0]
+            password = output.split(sepr)[1]
         else:
-            if chekroom(chatroom) is True:
-                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A valid chatroom identity was entered</green>"))
-            else:
-                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>An invalid chatroom identity was entered</green>"))
-                sys.exit()
-        if password is None:
-            print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A new password was generated</green>"))
-            password = Fernet.generate_key().decode("utf8")
-        else:
-            if chekpass(password) is True:
-                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A valid chatroom password was entered</green>"))
-            else:
-                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>An invalid chatroom password was entered</green>"))
+            isValid = asyncio.get_event_loop().run_until_complete(chekroom(username,chatroom,password,servaddr))
+            if isValid == "True":
+                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A valid credential was entered</green>"))
+            elif isValid == "False":
+                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>An invalid credential was entered</green>"))
                 sys.exit()
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Chatroom identity : " + chatroom + "</seagreen>"))
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Chatroom password : " + password + "</seagreen>"))
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Share the chatroom identity and password to add members!</seagreen>"))
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Your conversations are protected with end-to-end encryption</seagreen>"))
-        asyncio.get_event_loop().run_until_complete(hello(servaddr, username, chatroom, password))
+        asyncio.get_event_loop().run_until_complete(hello(username, chatroom, password,servaddr))
     except KeyboardInterrupt as EXPT:
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Leaving SNCTRYZERO...</red>"))
         sys.exit()
@@ -150,7 +141,6 @@ def mainfunc(username, password, chatroom, servaddr):
     except websockets.exceptions.ConnectionClosedError as EXPT:
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>A connection to the server was lost</red>"))
         sys.exit()
-
 
 if __name__ == "__main__":
     mainfunc()
