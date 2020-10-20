@@ -30,7 +30,8 @@ Jump right into the project wiki to know more about it.
 1. [Home](https://github.com/t0xic0der/sanctuary-zero/wiki)
 2. [Client setup](https://github.com/t0xic0der/sanctuary-zero/wiki/Client-setup)
 3. [Server setup](https://github.com/t0xic0der/sanctuary-zero/wiki/Server-setup)
-4. [Contributors](https://github.com/t0xic0der/sanctuary-zero/graphs/contributors)
+4. [Fernet Cryptography](https://medium.com/asecuritysite-when-bob-met-alice/passing-encrypted-tokens-the-fernet-way-ef9b2a9d125d)
+5. [Contributors](https://github.com/t0xic0der/sanctuary-zero/graphs/contributors)
 
 ## Screenshots
 ### Server
