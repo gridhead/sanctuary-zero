@@ -36,6 +36,8 @@ async def consumer_handler(cphrsuit, websocket, username, chatroom, servaddr):
                 print("[" + obtntime() + "] USERJOINED > " + recvdata.split(sepr)[2] + " joined - " + recvdata.split(sepr)[4] + " are connected - Indexes updated")
             elif recvdata.split(sepr)[0] == "SNCTRYZERO" and recvdata.split(sepr)[1] == "USEREXITED" and recvdata.split(sepr)[3] == chatroom:
                 print("[" + obtntime() + "] USEREXITED > " + recvdata.split(sepr)[2] + " left - " + recvdata.split(sepr)[4] + " are connected - Indexes updated")
+            elif recvdata.split(sepr)[0] == "SNCTRYZERO" and recvdata.split(sepr)[1] == "USERSLIST" and recvdata.split(sepr)[3] == chatroom:
+                print("[" + obtntime() + "] USERSLIST > " + recvdata.split(sepr)[2] + " are connected")
             else:
                 recvjson = json.loads(cphrsuit.decrjson(recvdata))
                 if recvjson["chatroom"] == chatroom and recvjson["username"] != username:
@@ -50,8 +52,11 @@ async def producer_handler(cphrsuit, websocket, username, chatroom, servaddr):
         while True:
             with patch_stdout():
                 mesgtext = await sess.prompt_async(lambda:"[" + obtntime() + "] " + formusnm(str(username)) + " > ", bottom_toolbar=footelem, validator=emtyfind(), refresh_interval=0.5, prompt_continuation=lambda width, line_number, is_soft_wrap: " " * width)
-            senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": mesgtext.strip()})
-            senddata = cphrsuit.encrjson(senddata)
+            if mesgtext.strip() == "/list":
+                senddata = mesgtext.strip()
+            else:
+                senddata = json.dumps({"username": username.strip(), "chatroom": chatroom, "mesgtext": mesgtext.strip()})
+                senddata = cphrsuit.encrjson(senddata)
             await websocket.send(senddata)
     except EOFError:
         raise KeyboardInterrupt
