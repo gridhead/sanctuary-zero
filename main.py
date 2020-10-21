@@ -1,7 +1,9 @@
 import asyncio, websockets, sys, click, time, os, socket
 from prompt_toolkit import print_formatted_text, HTML
 from websockets.exceptions import ConnectionClosedError
-
+import socket
+import fcntl
+import struct
 
 USERS = {}
 sepr = chr(969696)
@@ -73,8 +75,10 @@ def servenow(netpdata="127.0.0.1", chatport="9696"):
 
         
 def getipaddr():
-    return socket.getaddrinfo(socket.gethostname(), "http")[0][4][0]
-    
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    return s.getsockname()[0]
+
 
 @click.command()
 @click.option("-c", "--chatport", "chatport", help="Set the port value for the server [0-65536]", required=True)
