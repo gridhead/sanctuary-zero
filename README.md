@@ -9,7 +9,7 @@
 </p>
 
 ## Good news!
-This project is now listed in the [Projects using Python Prompt Toolkit](https://github.com/prompt-toolkit/python-prompt-toolkit).
+This project is now listed in the list of [Projects using Python Prompt Toolkit](https://github.com/prompt-toolkit/python-prompt-toolkit).
 
 ## Features
 1.  Provides real-time conversation using synchronous WebSocket objects
@@ -30,9 +30,15 @@ Jump right into the project wiki to know more about it.
 1. [Home](https://github.com/t0xic0der/sanctuary-zero/wiki)
 2. [Client setup](https://github.com/t0xic0der/sanctuary-zero/wiki/Client-setup)
 3. [Server setup](https://github.com/t0xic0der/sanctuary-zero/wiki/Server-setup)
+4. [Fernet Cryptography](https://medium.com/asecuritysite-when-bob-met-alice/passing-encrypted-tokens-the-fernet-way-ef9b2a9d125d)
+5. [Contributors](https://github.com/t0xic0der/sanctuary-zero/graphs/contributors)
+
+## Platforms supported
+1. GNU/Linux (Tested on Arch Linux, Fedora 32, Ubuntu 20.04)
+2. Microsoft Windows (Tested on Windows 10 Build 1909)
 
 ## Screenshots
 ### Server
-![](pictures/servpics.png)
+![](pictures/back.png)
 ### Client
-![](pictures/clinpics.png)
+![](pictures/frnt.png)
