@@ -38,11 +38,6 @@ def getallus(chatroom):
             userlist.append(USERS[indx][0])
     return userlist
 
-
-async def notify_mesej(message):
-    if USERS: await asyncio.wait([user.send(message) for user in USERS])
-
-
 def chk_username_presence(mesg_json):
     new_name = mesg_json.split(sepr)[1]
     chatroom_id = mesg_json.split(sepr)[2]
@@ -50,7 +45,6 @@ def chk_username_presence(mesg_json):
         return True
     else:
         return False
-
 
 async def notify_mesej(message):
     if USERS:
@@ -62,6 +56,7 @@ async def send_chatroommembers_list(websoc):
     await websoc.send(users_list)
 
 async def chatroom(websocket, path):
+    isInvalid = False
     if not websocket in USERS:
         USERS[websocket] = ""
     try:
@@ -81,17 +76,20 @@ async def chatroom(websocket, path):
                         # [query username chatroom password]
                         if mesgjson.split(sepr)[2] in current_rooms and mesgjson.split(sepr)[3] == CHATROOM[mesgjson.split(sepr)[2]] and str(chk_username_presence(mesgjson)) == "False":
                             await websocket.send("True")
-                            USERS[websocket] = [mesgjson.split(sepr)[1],mesgjson.split(sepr)[1]]
-                            print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[3] + "@" + mesgjson.split(sepr)[1] + "</green>"))
-                            await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[3] + sepr + mesgjson.split(sepr)[1] + sepr + str(getallus(mesgjson.split(sepr)[1])))
+                            USERS[websocket] = [mesgjson.split(sepr)[1],mesgjson.split(sepr)[2]]
+                            print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[1] + "@" + mesgjson.split(sepr)[2] + "</green>"))
+                            await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[1] + sepr + mesgjson.split(sepr)[2] + sepr + str(getallus(mesgjson.split(sepr)[2])))
                         else:
                             await websocket.send("False")
                             isInvalid = True
                     elif str(mesgjson) == '/list':
                         await send_chatroommembers_list(websocket)
             else:
-                print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + helper_display.wrap_text(str(mesgjson))))
-                await notify_mesej(mesgjson)
+                if(str(mesgjson)=='/list'):
+                    await send_chatroommembers_list(websocket)
+                else:
+                    print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + helper_display.wrap_text(str(mesgjson))))
+                    await notify_mesej(mesgjson)
     except ConnectionClosedError as EXPT:
         if isInvalid == False:
             print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USEREXITED</b> > <red>" + USERS[websocket][0] + "@" + USERS[websocket][1] + "</red>"))

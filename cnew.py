@@ -68,6 +68,7 @@ async def producer_handler(cphrsuit, username, chatroom, servaddr):
         raise KeyboardInterrupt
 
 async def hello(servaddr, username, chatroom, password):
+    cphrsuit = fernetst(password.encode("utf8")) 
     prod = asyncio.get_event_loop().create_task(producer_handler(cphrsuit, str(username), str(chatroom), str(servaddr)))
     cons = asyncio.get_event_loop().create_task(consumer_handler(cphrsuit, str(username), str(chatroom), str(servaddr)))
     await websocket.send(username+sepr+chatroom)
@@ -126,20 +127,16 @@ def mainfunc(username, password, chatroom, servaddr):
         print_formatted_text("\n")
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <b><seagreen>Starting Sanctuary ZERO v18102020 up...</seagreen></b>"))
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Attempted connection to '" + servaddr + "' at " + str(time.ctime()) + "</seagreen>"))
-
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Chatroom identity : " + chatroom + "</seagreen>"))
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Chatroom password : " + password + "</seagreen>"))
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Share the chatroom identity and password to add members!</seagreen>"))
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Your conversations are protected with end-to-end encryption</seagreen>"))
-        asyncio.get_event_loop().run_until_complete(hello(username, chatroom, password,servaddr))
-
         if username.strip() != "":
             if chatroom is None:
-                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <green>A new chatroom was generated</green>"))
                 # if i don't have chatroom, no password will be supplied
                 output = asyncio.get_event_loop().run_until_complete(askserver(username, servaddr))
                 chatroom = output.split(sepr)[0]
                 password = output.split(sepr)[1]
+                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Chatroom identity : " + chatroom + "</seagreen>"))
+                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Chatroom password : " + password + "</seagreen>"))
+                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Share the chatroom identity and password to add members!</seagreen>"))
+                print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Your conversations are protected with end-to-end encryption</seagreen>"))
             else:
                 if not chatroom.isupper():
                     chatroom = chatroom.upper()
@@ -152,8 +149,6 @@ def mainfunc(username, password, chatroom, servaddr):
         else:
             print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>An invalid username was entered</red>"))
             sys.exit()
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen><b>Identity</b> " + chatroom + " > <b>Password</b> " + password + "</seagreen>"))
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Share the chatroom identity, password and server address to invite members</seagreen>"))
         asyncio.get_event_loop().run_until_complete(hello(servaddr, username, chatroom, password))
     except KeyboardInterrupt as EXPT:
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Leaving SNCTRYZERO...</red>"))
