@@ -1,4 +1,4 @@
-import asyncio, websockets, sys, click, time, os, socket
+import asyncio, websockets, sys, click, time, os, socket, fcntl, struct
 from prompt_toolkit import print_formatted_text, HTML
 from websockets.exceptions import ConnectionClosedError
 from utils.helper_display import HelperDisplay
@@ -32,22 +32,6 @@ async def notify_mesej(message):
     if USERS: await asyncio.wait([user.send(message) for user in USERS])
 
 
-def wrap_text(message, max_width, indent=24):
-    wrapped_message = str()
-    indent_text = str()
-    message_width = len(message)
-    width = max_width - indent
-    for i in range(indent):
-        indent_text += ' '
-    for i in range(0, message_width, width):
-        if i > 0:
-            wrapped_message += indent_text
-        wrapped_message += message[i : i + width]
-        if i < message_width - width:
-            wrapped_message += '\n'
-    return wrapped_message
-
-
 def chk_username_presence(mesg_json):
     new_name = mesg_json.split(sepr)[1]
     chatroom_id = mesg_json.split(sepr)[2]
@@ -56,6 +40,10 @@ def chk_username_presence(mesg_json):
     else:
         return False
 
+async def send_chatroommembers_list(websoc):
+    chatroom_id = USERS[websoc][1]
+    users_list = "SNCTRYZERO" + sepr + "USERSLIST" + sepr + str(getallus(chatroom_id)) + sepr + chatroom_id
+    await websoc.send(users_list)
 
 async def chatroom(websocket, path):
     if not websocket in USERS:
@@ -69,14 +57,16 @@ async def chatroom(websocket, path):
                     if(result == "True"):
                         await websocket.close()
                         USERS.pop(websocket)
-                        #return
                 elif USERS[websocket] == "":
                     USERS[websocket] = [mesgjson.split(sepr)[0], mesgjson.split(sepr)[1]]
                     print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" + mesgjson.split(sepr)[1] + "</green>"))
                     await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[0] + sepr + mesgjson.split(sepr)[1] + sepr + str(getallus(mesgjson.split(sepr)[1])))
             else:
-                print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + helper_display.wrap_text(str(mesgjson))))
-                await notify_mesej(mesgjson)
+                if str(mesgjson) == "/list":
+                   await send_chatroommembers_list(websocket)
+                else:
+                    print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + helper_display.wrap_text(str(mesgjson))))
+                    await notify_mesej(mesgjson)
     except ConnectionClosedError as EXPT:
         print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USEREXITED</b> > <red>" + USERS[websocket][0] + "@" + USERS[websocket][1] + "</red>"))
         userlist = getallus(USERS[websocket][1])
@@ -90,11 +80,11 @@ def servenow(netpdata="127.0.0.1", chatport="9696"):
     try:
         start_server = websockets.serve(chatroom, netpdata, int(chatport))
         asyncio.get_event_loop().run_until_complete(start_server)
-        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>SNCTRYZERO was started up on 'ws://" + str(netpdata) + ":" + str(chatport) + "/'</green>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>SNCTRYZERO server was started up on 'ws://" + str(netpdata) + ":" + str(chatport) + "/'</green>"))
         asyncio.get_event_loop().run_forever()
     except KeyboardInterrupt:
         print("")
-        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <red><b>SNCTRYZERO was shut down</b></red>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <red><b>SNCTRYZERO server was shut down</b></red>"))
         sys.exit()
 
         
@@ -108,11 +98,14 @@ def getipaddr():
 @click.option("-c", "--chatport", "chatport", help="Set the port value for the server [0-65536]", required=True)
 @click.option("-6", "--ipprotv6", "netprotc", flag_value="ipprotv6", help="Start the server on an IPv6 address", required=True)
 @click.option("-4", "--ipprotv4", "netprotc", flag_value="ipprotv4", help="Start the server on an IPv4 address", required=True)
-@click.version_option(version="04092020", prog_name="SNCTRYZERO Server by t0xic0der")
+@click.version_option(version="18102020", prog_name="SNCTRYZERO Server")
 def mainfunc(chatport, netprotc):
     try:
-        os.system("clear")
-        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green><b>Starting SNCTRYZERO v04092020...</b></green>"))
+        click.clear()
+        print_formatted_text("\n")
+        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green><b>Starting SNCTRYZERO server v18102020...</b></green>" + "\n" + \
+            "[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > Know more about the project at https://github.com/t0xic0der/sanctuary-zero/wiki" + "\n" + \
+            "[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > Find folks we're thankful to at https://github.com/t0xic0der/sanctuary-zero/graphs/contributors"))
         netpdata = ""
         if netprotc == "ipprotv6":
             print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>IP version : 6</green>"))
