@@ -12,13 +12,6 @@ sepr = chr(969696)
 websocket = None
 helper_display = HelperDisplay()
 
-
-class emtyfind(Validator):
-    def validate(self, document):
-        if document.text.strip() == "":
-            raise ValidationError(message="You cannot send an empty message ")
-
-
 class fernetst():
     def __init__(self, pswd):
         self.suit = Fernet(pswd)
