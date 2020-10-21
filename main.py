@@ -2,11 +2,6 @@ import asyncio, websockets, sys, click, time, os,secrets
 from prompt_toolkit import print_formatted_text, HTML
 from websockets.exceptions import ConnectionClosedError
 from cryptography.fernet import Fernet, InvalidToken
-import logging
-logger = logging.getLogger('websockets')
-logger.setLevel(logging.INFO)
-logger.addHandler(logging.StreamHandler())
-
 
 USERS = {}
 CHATROOM = {}
