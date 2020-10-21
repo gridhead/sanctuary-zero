@@ -1,12 +1,12 @@
 import asyncio, websockets, sys, click, time, os, socket
 from prompt_toolkit import print_formatted_text, HTML
 from websockets.exceptions import ConnectionClosedError
-import socket
-import fcntl
-import struct
+from utils.helper_display import HelperDisplay
+
 
 USERS = {}
 sepr = chr(969696)
+helper_display = HelperDisplay()
 
 
 def obtntime():
@@ -23,35 +23,59 @@ def obtntime():
 def getallus(chatroom):
     userlist = []
     for indx in USERS:
-        if chatroom == USERS[indx][1]:
+        if USERS[indx]!="" and chatroom == USERS[indx][1]:
             userlist.append(USERS[indx][0])
     return userlist
 
 
-def chekusav(sockobjc):
-    if sockobjc in USERS:
+async def notify_mesej(message):
+    if USERS: await asyncio.wait([user.send(message) for user in USERS])
+
+
+def wrap_text(message, max_width, indent=24):
+    wrapped_message = str()
+    indent_text = str()
+    message_width = len(message)
+    width = max_width - indent
+    for i in range(indent):
+        indent_text += ' '
+    for i in range(0, message_width, width):
+        if i > 0:
+            wrapped_message += indent_text
+        wrapped_message += message[i : i + width]
+        if i < message_width - width:
+            wrapped_message += '\n'
+    return wrapped_message
+
+
+def chk_username_presence(mesg_json):
+    new_name = mesg_json.split(sepr)[1]
+    chatroom_id = mesg_json.split(sepr)[2]
+    if new_name in getallus(chatroom_id):
         return True
     else:
         return False
 
 
-async def notify_mesej(message):
-    if USERS:
-        await asyncio.wait([user.send(message) for user in USERS])
-
-
 async def chatroom(websocket, path):
-    if not chekusav(websocket):
+    if not websocket in USERS:
         USERS[websocket] = ""
     try:
         async for mesgjson in websocket:
             if sepr in mesgjson and websocket in USERS:
-                if USERS[websocket] == "":
+                if (mesgjson.split(sepr)[0] == "CHKUSR") & (len(mesgjson.split(sepr)) == 3) :
+                    result = str(chk_username_presence(mesgjson))
+                    await websocket.send(result)
+                    if(result == "True"):
+                        await websocket.close()
+                        USERS.pop(websocket)
+                        #return
+                elif USERS[websocket] == "":
                     USERS[websocket] = [mesgjson.split(sepr)[0], mesgjson.split(sepr)[1]]
                     print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" + mesgjson.split(sepr)[1] + "</green>"))
                     await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[0] + sepr + mesgjson.split(sepr)[1] + sepr + str(getallus(mesgjson.split(sepr)[1])))
             else:
-                print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + str(mesgjson)))
+                print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + helper_display.wrap_text(str(mesgjson))))
                 await notify_mesej(mesgjson)
     except ConnectionClosedError as EXPT:
         print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USEREXITED</b> > <red>" + USERS[websocket][0] + "@" + USERS[websocket][1] + "</red>"))
