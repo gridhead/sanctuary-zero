@@ -98,8 +98,9 @@ async def chatroom(websocket, path):
             userlist = getallus(USERS[websocket][1])
             userlist.remove(USERS[websocket][0])
             leftmesg = "SNCTRYZERO" + sepr + "USEREXITED" + sepr + USERS[websocket][0] + sepr + USERS[websocket][1] + sepr + str(userlist)
-            await notify_mesej(leftmesg,USERS[websocket][1])
+            chatroom = USERS[websocket][1]
             USERS.pop(websocket)
+            await notify_mesej(leftmesg,chatroom)
         else:
             isInvalid = False
 
