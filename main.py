@@ -2,11 +2,24 @@ import asyncio, websockets, sys, click, time, os
 from prompt_toolkit import print_formatted_text, HTML
 from websockets.exceptions import ConnectionClosedError
 from utils.helper_display import HelperDisplay
+from cryptography.fernet import Fernet, InvalidToken
 
 
 USERS = {}
+CHATROOM = {}
 sepr = chr(969696)
+current_rooms=[]
 helper_display = HelperDisplay()
+
+class fernetst():
+    def __init__(self, pswd):
+        self.suit = Fernet(pswd)
+
+    def encrjson(self, data):
+        return self.suit.encrypt(data.encode("utf8")).decode("utf8")
+
+    def decrjson(self, data):
+        return self.suit.decrypt(data.encode("utf8")).decode("utf8")
 
 
 def obtntime():
@@ -46,21 +59,34 @@ async def send_chatroommembers_list(websoc):
     await websoc.send(users_list)
 
 async def chatroom(websocket, path):
+    isInvalid = False
     if not websocket in USERS:
         USERS[websocket] = ""
     try:
         async for mesgjson in websocket:
             if sepr in mesgjson and websocket in USERS:
-                if (mesgjson.split(sepr)[0] == "CHKUSR") & (len(mesgjson.split(sepr)) == 3) :
-                    result = str(chk_username_presence(mesgjson))
-                    await websocket.send(result)
-                    if(result == "True"):
-                        await websocket.close()
-                        USERS.pop(websocket)
-                elif USERS[websocket] == "":
-                    USERS[websocket] = [mesgjson.split(sepr)[0], mesgjson.split(sepr)[1]]
-                    print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" + mesgjson.split(sepr)[1] + "</green>"))
-                    await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[0] + sepr + mesgjson.split(sepr)[1] + sepr + str(getallus(mesgjson.split(sepr)[1])))
+                if USERS[websocket] == "":
+                    if mesgjson.split(sepr)[0] == 'NEW':
+                        new_room = randgene()
+                        current_rooms.append(new_room)
+                        USERS[websocket] = [mesgjson.split(sepr)[1], new_room]
+                        password = Fernet.generate_key().decode("utf-8")
+                        CHATROOM[new_room] = password
+                        await websocket.send(new_room+sepr+password)
+                        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[1] + "@" + new_room + "</green>"))
+                        await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[1] + sepr + new_room + sepr + str(getallus(new_room)))
+                    elif mesgjson.split(sepr)[0] == 'CHKUSR':
+                        # [query username chatroom password]
+                        if mesgjson.split(sepr)[2] in current_rooms and mesgjson.split(sepr)[3] == CHATROOM[mesgjson.split(sepr)[2]] and str(chk_username_presence(mesgjson)) == "False":
+                            await websocket.send("True")
+                            USERS[websocket] = [mesgjson.split(sepr)[1],mesgjson.split(sepr)[2]]
+                            print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[1] + "@" + mesgjson.split(sepr)[2] + "</green>"))
+                            await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[1] + sepr + mesgjson.split(sepr)[2] + sepr + str(getallus(mesgjson.split(sepr)[2])))
+                        else:
+                            await websocket.send("False")
+                            isInvalid = True
+                    elif str(mesgjson) == '/list':
+                        await send_chatroommembers_list(websocket)
             else:
                 if str(mesgjson) == "/list":
                    await send_chatroommembers_list(websocket)
@@ -68,13 +94,20 @@ async def chatroom(websocket, path):
                     print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + helper_display.wrap_text(str(mesgjson))))
                     await notify_mesej(mesgjson)
     except ConnectionClosedError as EXPT:
-        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USEREXITED</b> > <red>" + USERS[websocket][0] + "@" + USERS[websocket][1] + "</red>"))
-        userlist = getallus(USERS[websocket][1])
-        userlist.remove(USERS[websocket][0])
-        leftmesg = "SNCTRYZERO" + sepr + "USEREXITED" + sepr + USERS[websocket][0] + sepr + USERS[websocket][1] + sepr + str(userlist)
-        USERS.pop(websocket)
-        await notify_mesej(leftmesg)
+        if isInvalid == False:
+            print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USEREXITED</b> > <red>" + USERS[websocket][0] + "@" + USERS[websocket][1] + "</red>"))
+            userlist = getallus(USERS[websocket][1])
+            userlist.remove(USERS[websocket][0])
+            leftmesg = "SNCTRYZERO" + sepr + "USEREXITED" + sepr + USERS[websocket][0] + sepr + USERS[websocket][1] + sepr + str(userlist)
+            USERS.pop(websocket)
+            await notify_mesej(leftmesg)
+        else:
+            isInvalid = False
 
+def randgene():
+    numb = 8
+    randstrg = ''.join(secrets.choice("ABCDEF" + "0123456789") for i in range(numb))
+    return randstrg
 
 def servenow(netpdata="127.0.0.1", chatport="9696"):
     try:
