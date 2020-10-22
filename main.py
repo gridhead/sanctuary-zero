@@ -2,6 +2,7 @@ import asyncio, websockets, sys, click, time, os
 from prompt_toolkit import print_formatted_text, HTML
 from websockets.exceptions import ConnectionClosedError
 from utils.helper_display import HelperDisplay
+from requests import get
 
 
 USERS = {}
@@ -28,6 +29,10 @@ def getallus(chatroom):
     return userlist
 
 
+def ipaddress():
+    return get('https://api64.ipify.org').text
+
+
 async def notify_mesej(message):
     if USERS: await asyncio.wait([user.send(message) for user in USERS])
 
@@ -40,10 +45,12 @@ def chk_username_presence(mesg_json):
     else:
         return False
 
+
 async def send_chatroommembers_list(websoc):
     chatroom_id = USERS[websoc][1]
     users_list = "SNCTRYZERO" + sepr + "USERSLIST" + sepr + str(getallus(chatroom_id)) + sepr + chatroom_id
     await websoc.send(users_list)
+
 
 async def chatroom(websocket, path):
     if not websocket in USERS:
@@ -107,9 +114,10 @@ def mainfunc(chatport, netprotc):
         elif netprotc == "ipprotv4":
             print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>IP version : 4</green>"))
             netpdata = "0.0.0.0"
+        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>IP address : " + ipaddress() + "</green>"))
         servenow(netpdata, chatport)
     except OSError:
-        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <red><b>The server could not be started up</b></red>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <red><b>The server could not be started</b></red>"))
 
 
 if __name__ == "__main__":
