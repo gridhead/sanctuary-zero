@@ -28,8 +28,11 @@ def getallus(chatroom):
     return userlist
 
 
-async def notify_mesej(message):
-    if USERS: await asyncio.wait([user.send(message) for user in USERS])
+async def notify_mesej(message,chatroom):
+    if USERS: 
+        for user in USERS:
+            if chatroom == USERS[user][1]:
+                await asyncio.wait([user.send(message)])
 
 
 def chk_username_presence(mesg_json):
@@ -60,20 +63,21 @@ async def chatroom(websocket, path):
                 elif USERS[websocket] == "":
                     USERS[websocket] = [mesgjson.split(sepr)[0], mesgjson.split(sepr)[1]]
                     print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" + mesgjson.split(sepr)[1] + "</green>"))
-                    await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[0] + sepr + mesgjson.split(sepr)[1] + sepr + str(getallus(mesgjson.split(sepr)[1])))
+                    await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[0] + sepr + mesgjson.split(sepr)[1] + sepr + str(getallus(mesgjson.split(sepr)[1])),mesgjson.split(sepr)[1])
             else:
                 if str(mesgjson) == "/list":
                    await send_chatroommembers_list(websocket)
                 else:
                     print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + helper_display.wrap_text(str(mesgjson))))
-                    await notify_mesej(mesgjson)
+                    await notify_mesej(mesgjson,USERS[websocket][1])
     except ConnectionClosedError as EXPT:
         print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USEREXITED</b> > <red>" + USERS[websocket][0] + "@" + USERS[websocket][1] + "</red>"))
         userlist = getallus(USERS[websocket][1])
+        chatroom = USERS[websocket][1]
         userlist.remove(USERS[websocket][0])
         leftmesg = "SNCTRYZERO" + sepr + "USEREXITED" + sepr + USERS[websocket][0] + sepr + USERS[websocket][1] + sepr + str(userlist)
         USERS.pop(websocket)
-        await notify_mesej(leftmesg)
+        await notify_mesej(leftmesg,chatroom)
 
 
 def servenow(netpdata="127.0.0.1", chatport="9696"):
