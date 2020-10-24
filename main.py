@@ -40,6 +40,10 @@ def chk_username_presence(mesg_json):
     else:
         return False
 
+async def send_chatroommembers_list(websoc):
+    chatroom_id = USERS[websoc][1]
+    users_list = "SNCTRYZERO" + sepr + "USERSLIST" + sepr + str(getallus(chatroom_id)) + sepr + chatroom_id
+    await websoc.send(users_list)
 
 async def chatroom(websocket, path):
     if not websocket in USERS:
@@ -58,8 +62,11 @@ async def chatroom(websocket, path):
                     print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" + mesgjson.split(sepr)[1] + "</green>"))
                     await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[0] + sepr + mesgjson.split(sepr)[1] + sepr + str(getallus(mesgjson.split(sepr)[1])))
             else:
-                print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + helper_display.wrap_text(str(mesgjson))))
-                await notify_mesej(mesgjson)
+                if str(mesgjson) == "/list":
+                   await send_chatroommembers_list(websocket)
+                else:
+                    print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + helper_display.wrap_text(str(mesgjson))))
+                    await notify_mesej(mesgjson)
     except ConnectionClosedError as EXPT:
         print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USEREXITED</b> > <red>" + USERS[websocket][0] + "@" + USERS[websocket][1] + "</red>"))
         userlist = getallus(USERS[websocket][1])
