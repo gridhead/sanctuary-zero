@@ -1,4 +1,4 @@
-import asyncio, websockets, sys, click, urllib3, time
+import asyncio, websockets, sys, click, http.client, time
 from prompt_toolkit import print_formatted_text, HTML
 from websockets.exceptions import ConnectionClosedError
 from utils.helper_display import HelperDisplay
@@ -26,8 +26,13 @@ def ipaddress(v):
         url = "https://api.ipify.org"
     elif v == 6:
         url = "https://api6.ipify.org"
-    response = urllib3.PoolManager().request('GET', url)
-    return response.data.decode('UTF-8')
+    try:
+        connection = http.client.HTTPSConnection("api6.ipify.org")
+        connection.request("GET", "/")
+        response = connection.getresponse()
+        return response.read().decode("UTF-8")
+    except (http.client.HTTPException, response.status != 200):
+        return "Error getting IP address."
 
 
 def getallus(chatroom):
