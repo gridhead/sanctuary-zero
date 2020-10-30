@@ -1,4 +1,4 @@
-import asyncio, websockets, sys, click, time, os
+import asyncio, websockets, sys, click, time, os, socket, fcntl, struct
 from prompt_toolkit import print_formatted_text, HTML
 from websockets.exceptions import ConnectionClosedError
 from utils.helper_display import HelperDisplay
@@ -87,6 +87,12 @@ def servenow(netpdata="127.0.0.1", chatport="9696"):
         print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <red><b>SNCTRYZERO server was shut down</b></red>"))
         sys.exit()
 
+        
+def getipaddr():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    return s.getsockname()[0]
+
 
 @click.command()
 @click.option("-c", "--chatport", "chatport", help="Set the port value for the server [0-65536]", required=True)
@@ -107,6 +113,7 @@ def mainfunc(chatport, netprotc):
         elif netprotc == "ipprotv4":
             print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>IP version : 4</green>"))
             netpdata = "0.0.0.0"
+        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>IP address : "+ getipaddr() +"</green>"))
         servenow(netpdata, chatport)
     except OSError:
         print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <red><b>The server could not be started up</b></red>"))
