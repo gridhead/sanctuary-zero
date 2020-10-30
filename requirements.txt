@@ -4,5 +4,6 @@ cryptography==3.2.1
 prompt-toolkit==3.0.8
 pycparser==2.20
 six==1.15.0
+urllib3==1.25.10
 wcwidth==0.2.5
 websockets==8.1
