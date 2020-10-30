@@ -33,9 +33,9 @@ async def consumer_handler(cphrsuit, websocket, username, chatroom, servaddr):
     async for recvdata in websocket:
         try:
             if recvdata.split(sepr)[0] == "SNCTRYZERO" and recvdata.split(sepr)[1] == "USERJOINED" and recvdata.split(sepr)[3] == chatroom:
-                print("[" + obtntime() + "] USERJOINED > " + recvdata.split(sepr)[2] + " joined - " + recvdata.split(sepr)[4] + " are connected - Indexes updated")
+                print("[" + obtntime() + "] USERJOINED > " + recvdata.split(sepr)[2] + " joined")
             elif recvdata.split(sepr)[0] == "SNCTRYZERO" and recvdata.split(sepr)[1] == "USEREXITED" and recvdata.split(sepr)[3] == chatroom:
-                print("[" + obtntime() + "] USEREXITED > " + recvdata.split(sepr)[2] + " left - " + recvdata.split(sepr)[4] + " are connected - Indexes updated")
+                print("[" + obtntime() + "] USEREXITED > " + recvdata.split(sepr)[2] + " left")
             elif recvdata.split(sepr)[0] == "SNCTRYZERO" and recvdata.split(sepr)[1] == "USERSLIST" and recvdata.split(sepr)[3] == chatroom:
                 print("[" + obtntime() + "] SNCTRYZERO > " + recvdata.split(sepr)[2] + " are connected")
             else:
@@ -136,7 +136,8 @@ def formusnm(username):
 
 
 def check_socket(servaddr):
-    addr = [x.strip().strip("/") for x in servaddr.split(":")] #['ws',ip, port_no]
+    addr = [x.strip().strip("/") for x in servaddr.split(":")]
+    # ['ws',ip, port_no]
     if addr[0] == "ws":
         try:
             addr[2]= int(addr[2])
@@ -145,14 +146,14 @@ def check_socket(servaddr):
                 if sock.connect_ex((addr[1], addr[2])) == 0:
                     return True
                 else:
-                    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Server not set up at '" + servaddr +  "</red>"))
+                    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Server was not found at '" + servaddr + "</red>"))
                     return False
         except ValueError:
-            print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Invalid port number: '"+addr[2]+"' </red>"))
+            print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Invalid port number > '"+addr[2]+"'</red>"))
             return False
         except Exception:
             return False
-    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Invalid protocol used, example use, 'ws://127.0.0.1:9696' </red>"))
+    print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>The URI entered is not WebSockets-protocol compliant</red>"))
     return False
 
 
@@ -161,12 +162,12 @@ def check_socket(servaddr):
 @click.option("-p", "--password", "password", help="Enter the chatroom password for decrypting the messages")
 @click.option("-c", "--chatroom", "chatroom", help="Enter the chatroom identity you would want to enter in")
 @click.option("-s", "--servaddr", "servaddr", help="Enter the server address you would want to connect to", required=True)
-@click.version_option(version="18102020", prog_name="SNCTRYZERO client")
+@click.version_option(version="30102020", prog_name="SNCTRYZERO client")
 def mainfunc(username, password, chatroom, servaddr):
     try:
         click.clear()
         print_formatted_text("\n")
-        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <b><seagreen>Starting Sanctuary ZERO v18102020 up...</seagreen></b>"))
+        print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <b><seagreen>Starting Sanctuary ZERO v30102020 up...</seagreen></b>"))
         print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <seagreen>Attempted connection to '" + servaddr + "' at " + str(time.ctime()) + "</seagreen>"))
         if not check_socket(servaddr):
             print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Attempted connection to '" + servaddr + "' failed at " + str(time.ctime()) +" due to invalid url" "</red>"))
