@@ -31,7 +31,7 @@ def ipaddress(v):
         connection.request("GET", "/")
         response = connection.getresponse()
         return response.read().decode("UTF-8")
-    except (http.client.HTTPException, response.status != 200):
+    except:
         return "Error getting IP address."
 
 
