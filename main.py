@@ -25,24 +25,14 @@ def ipaddress(v):
     if v == 4:
         url = "api.ipify.org"
     elif v == 6:
-<<<<<<< Updated upstream
-        url = "https://api6.ipify.org"
-    try:
-        connection = http.client.HTTPSConnection("api6.ipify.org")
-=======
         url = "api6.ipify.org"
     try:
         connection = http.client.HTTPSConnection(url)
->>>>>>> Stashed changes
         connection.request("GET", "/")
         response = connection.getresponse()
         return response.read().decode("UTF-8")
     except (http.client.HTTPException, response.status != 200):
-<<<<<<< Updated upstream
         return "Error getting IP address."
-=======
-        return "Problem with requesting IP address."
->>>>>>> Stashed changes
 
 
 def getallus(chatroom):
