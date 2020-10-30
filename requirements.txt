@@ -1,7 +1,7 @@
-cffi==1.14.3
+cffi==1.14.2
 click==7.1.2
-cryptography==3.2.1
-prompt-toolkit==3.0.8
+cryptography==3.0
+prompt-toolkit==3.0.6
 pycparser==2.20
 six==1.15.0
 wcwidth==0.2.5
