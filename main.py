@@ -1,4 +1,4 @@
-import asyncio, websockets, sys, click, urllib3, time
+import asyncio, websockets, sys, click, time, os
 from prompt_toolkit import print_formatted_text, HTML
 from websockets.exceptions import ConnectionClosedError
 from utils.helper_display import HelperDisplay
@@ -18,16 +18,6 @@ def obtntime():
     if int(timemint) < 10:  timemint = "0" + timemint
     if int(timesecs) < 10:  timesecs = "0" + timesecs
     return timehour + ":" + timemint + ":" + timesecs
-
-
-def ipaddress(v):
-    url = "https://api64.ipify.org"
-    if v == 4:
-        url = "https://api.ipify.org"
-    elif v == 6:
-        url = "https://api6.ipify.org"
-    response = urllib3.PoolManager().request('GET', url)
-    return response.data.decode('UTF-8')
 
 
 def getallus(chatroom):
@@ -114,11 +104,9 @@ def mainfunc(chatport, netprotc):
         if netprotc == "ipprotv6":
             print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>IP version : 6</green>"))
             netpdata = "::"
-            print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>IP address : " + ipaddress(6) + "</green>"))
         elif netprotc == "ipprotv4":
             print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>IP version : 4</green>"))
             netpdata = "0.0.0.0"
-            print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <green>IP address : " + ipaddress(4) + "</green>"))
         servenow(netpdata, chatport)
     except OSError:
         print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > <red><b>The server could not be started up</b></red>"))
