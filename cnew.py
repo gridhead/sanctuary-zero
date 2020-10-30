@@ -37,7 +37,7 @@ async def consumer_handler(cphrsuit, websocket, username, chatroom, servaddr):
             elif recvdata.split(sepr)[0] == "SNCTRYZERO" and recvdata.split(sepr)[1] == "USEREXITED" and recvdata.split(sepr)[3] == chatroom:
                 print("[" + obtntime() + "] USEREXITED > " + recvdata.split(sepr)[2] + " left - " + recvdata.split(sepr)[4] + " are connected - Indexes updated")
             elif recvdata.split(sepr)[0] == "SNCTRYZERO" and recvdata.split(sepr)[1] == "USERSLIST" and recvdata.split(sepr)[3] == chatroom:
-                print("[" + obtntime() + "] USERSLIST > " + recvdata.split(sepr)[2] + " are connected")
+                print("[" + obtntime() + "] SNCTRYZERO > " + recvdata.split(sepr)[2] + " are connected")
             else:
                 recvjson = json.loads(cphrsuit.decrjson(recvdata))
                 if recvjson["chatroom"] == chatroom and recvjson["username"] != username:
@@ -89,7 +89,7 @@ async def hello(servaddr, username, chatroom, password):
                 print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>A connection to the server was lost</red>".format(EXPT)))
             raise KeyboardInterrupt
 
-			
+
 def obtntime():
     timestmp = time.localtime()
     timehour = str(timestmp.tm_hour)
@@ -127,13 +127,17 @@ def chekpass(pswd):
 
 
 def formusnm(username):
-    if len(username) < 10:      return username + " " * (10 - len(username))
-    elif len(username) > 10:    return username[0:10]
-    else:                       return username
+    if len(username) < 10:
+        return username + " " * (10 - len(username))
+    elif len(username) > 10:
+        return username[0:10]
+    else:
+        return username
+
 
 def check_socket(servaddr):
-    addr= [x.strip().strip("/") for x in servaddr.split(":")] #['ws',ip, port_no]
-    if addr[0]=='ws':
+    addr = [x.strip().strip("/") for x in servaddr.split(":")] #['ws',ip, port_no]
+    if addr[0] == "ws":
         try:
             addr[2]= int(addr[2])
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -150,6 +154,7 @@ def check_socket(servaddr):
             return False
     print_formatted_text(HTML("[" + obtntime() + "] " + "SNCTRYZERO > <red>Invalid protocol used, example use, 'ws://127.0.0.1:9696' </red>"))
     return False
+
 
 @click.command()
 @click.option("-u", "--username", "username", help="Enter the username that you would identify yourself with", required=True)

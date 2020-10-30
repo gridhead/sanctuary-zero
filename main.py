@@ -55,10 +55,12 @@ def chk_username_presence(mesg_json):
     else:
         return False
 
+
 async def send_chatroommembers_list(websoc):
     chatroom_id = USERS[websoc][1]
     users_list = "SNCTRYZERO" + sepr + "USERSLIST" + sepr + str(getallus(chatroom_id)) + sepr + chatroom_id
     await websoc.send(users_list)
+
 
 async def chatroom(websocket, path):
     if not websocket in USERS:
