@@ -44,7 +44,9 @@ def getallus(chatroom):
 
 
 async def notify_mesej(message):
-    if USERS: await asyncio.wait([user.send(message) for user in USERS])
+    if USERS:
+        for user in USERS:
+            await user.send(message)
 
 
 def chk_username_presence(mesg_json):
