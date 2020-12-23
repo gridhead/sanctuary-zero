@@ -7,7 +7,7 @@ import json
 
 WAITING_AREA = []
 USERS = {}
-sepr = chr(969696)
+
 helper_display = HelperDisplay()
 
 
@@ -45,14 +45,6 @@ def getallus(chatroom):
     return userlist
 
 
-'''
-async def notify_mesej(message):
-    if USERS:
-        for user in USERS:
-            await user.send(message)
-'''
-
-
 async def notify_mesej(username, operands, mesgtext, chatroom):
     userlist = USERS[chatroom]["userlist"]
     for user in userlist.keys():
@@ -75,54 +67,6 @@ async def personal_message(username, operands, mesgtext, chatroom, destsock):
     }
     mesgjson = json.dumps(mesgdict)
     await destsock.send(mesgjson)
-
-
-def chk_username_presence(mesg_json):
-    new_name = mesg_json.split(sepr)[1]
-    chatroom_id = mesg_json.split(sepr)[2]
-    if new_name in getallus(chatroom_id):
-        return True
-    else:
-        return False
-
-
-async def send_chatroommembers_list(websoc):
-    chatroom_id = USERS[websoc][1]
-    users_list = "SNCTRYZERO" + sepr + "USERSLIST" + sepr + str(getallus(chatroom_id)) + sepr + chatroom_id
-    await websoc.send(users_list)
-
-
-'''
-async def chatroom(websocket, path):
-    if not websocket in USERS:
-        USERS[websocket] = ""
-    try:
-        async for mesgjson in websocket:
-            if sepr in mesgjson and websocket in USERS:
-                if (mesgjson.split(sepr)[0] == "CHKUSR") & (len(mesgjson.split(sepr)) == 3) :
-                    result = str(chk_username_presence(mesgjson))
-                    await websocket.send(result)
-                    if(result == "True"):
-                        await websocket.close()
-                        USERS.pop(websocket)
-                elif USERS[websocket] == "":
-                    USERS[websocket] = [mesgjson.split(sepr)[0], mesgjson.split(sepr)[1]]
-                    print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgjson.split(sepr)[0] + "@" + mesgjson.split(sepr)[1] + "</green>"))
-                    await notify_mesej("SNCTRYZERO" + sepr + "USERJOINED" + sepr + mesgjson.split(sepr)[0] + sepr + mesgjson.split(sepr)[1] + sepr + str(getallus(mesgjson.split(sepr)[1])))
-            else:
-                if str(mesgjson) == "/list":
-                   await send_chatroommembers_list(websocket)
-                else:
-                    print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + helper_display.wrap_text(str(mesgjson))))
-                    await notify_mesej(mesgjson)
-    except ConnectionClosedError as EXPT:
-        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USEREXITED</b> > <red>" + USERS[websocket][0] + "@" + USERS[websocket][1] + "</red>"))
-        userlist = getallus(USERS[websocket][1])
-        userlist.remove(USERS[websocket][0])
-        leftmesg = "SNCTRYZERO" + sepr + "USEREXITED" + sepr + USERS[websocket][0] + sepr + USERS[websocket][1] + sepr + str(userlist)
-        USERS.pop(websocket)
-        await notify_mesej(leftmesg)
-'''
 
 
 '''
@@ -157,23 +101,6 @@ MESSAGE_STRUCTURE = {
 }
 '''
 
-def check_websocket_object_presence(websocket):
-    for indx in USERS.keys():
-        for jndx in USERS[indx].keys():
-            if websocket == USERS[indx][jndx]:
-                return True
-    return False
-
-
-def obtain_username_and_chatroom_of_whoever_left(websocket):
-    username, chatroom = "", ""
-    for indx in USERS.keys():
-        for jndx in USERS[indx]["userlist"].keys():
-            if USERS[indx]["userlist"][jndx] == websocket:
-                username = jndx
-                chatroom = indx
-    return username, chatroom
-
 
 def obtain_list_of_users_from_the_chatroom(chatroom):
     userlist = ""
@@ -183,68 +110,125 @@ def obtain_list_of_users_from_the_chatroom(chatroom):
     return userlist
 
 
+class ServerOperations():
+    def __init__(self, websocket):
+        self.websocket = websocket
+
+    def check_websocket_object_presence(self):
+        for indx in USERS.keys():
+            for jndx in USERS[indx].keys():
+                if self.websocket == USERS[indx][jndx]:
+                    return True
+        return False
+
+    def obtain_username_and_chatroom_of_whoever_left(self):
+        username, chatroom = "", ""
+        for indx in USERS.keys():
+            for jndx in USERS[indx]["userlist"].keys():
+                if USERS[indx]["userlist"][jndx] == self.websocket:
+                    username = jndx
+                    chatroom = indx
+        return username, chatroom
+
+    async def check_specific_username_presence_in_the_chatroom(self, mesgdict):
+        if mesgdict["operands"] == "CHEKUSER":
+            if mesgdict["chatroom"] in USERS.keys():
+                if mesgdict["username"] in USERS[mesgdict["chatroom"]]["userlist"].keys():
+                    await self.websocket.send("True")
+                    await self.websocket.close()
+                    WAITING_AREA.remove(self.websocket)
+                else:
+                    await self.websocket.send("False")
+            else:
+                USERS[mesgdict["chatroom"]] = {}
+                USERS[mesgdict["chatroom"]]["roomownr"] = mesgdict["username"]
+                USERS[mesgdict["chatroom"]]["userlist"] = {mesgdict["username"]: self.websocket}
+                print_formatted_text(HTML(
+                    "[" + obtntime() + "] " + "<b>NEWROOMEXT</b> > <green>" + mesgdict["username"] + "@" + mesgdict[
+                        "chatroom"] + "</green>"))
+                # WAITING_AREA.remove(websocket)
+                await self.websocket.send("False")
+
+    async def prove_user_identity_inside_a_chatroom(self, mesgdict):
+        USERS[mesgdict["chatroom"]]["userlist"][mesgdict["username"]] = self.websocket
+        WAITING_AREA.remove(self.websocket)
+        print_formatted_text(HTML(
+            "[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgdict["username"] + "@" + mesgdict[
+                "chatroom"] + "</green>"))
+        jointext = mesgdict["username"] + " joined the chatroom"
+        await notify_mesej("SNCTRYZERO", "USERJOIN", jointext, mesgdict["chatroom"])
+
+    async def dispatch_list_of_users(self, mesgdict):
+        userlist = obtain_list_of_users_from_the_chatroom(mesgdict["chatroom"])
+        await personal_message("SNCTRYZERO", "USERLIST", userlist, mesgdict["chatroom"], self.websocket)
+
+    async def whisper_messages_to_a_specific_username(self, mesgdict):
+        if mesgdict["destuser"] in USERS[mesgdict["chatroom"]]["userlist"].keys():
+            await personal_message(mesgdict["username"], "PURRMESG", mesgdict["mesgtext"], mesgdict["chatroom"],
+                                   USERS[mesgdict["chatroom"]]["userlist"][mesgdict["destuser"]])
+        else:
+            purrfail = "Whisper failed - Username not available in the chatroom"
+            await personal_message("SNCTRYZERO", "PURRFAIL", purrfail, mesgdict["chatroom"], self.websocket)
+
+    async def remove_specific_username_from_the_room(self, mesgdict):
+        if mesgdict["destuser"] in USERS[mesgdict["chatroom"]]["userlist"].keys():
+            await personal_message("SNCTRYZERO", "KICKUSER", "", mesgdict["chatroom"],
+                                   USERS[mesgdict["chatroom"]]["userlist"][mesgdict["destuser"]])
+            await USERS[mesgdict["chatroom"]]["userlist"][mesgdict["destuser"]].close()
+            USERS[mesgdict["chatroom"]]["userlist"].pop(mesgdict["destuser"])
+            print("Connection closed neega!")
+        else:
+            kickfail = "Removal failed - Username not available in the chatroom"
+            await personal_message("SNCTRYZERO", "KICKFAIL", kickfail, mesgdict["chatroom"], self.websocket)
+
+    async def anonymously_dispatch_message_to_specific_username(self, mesgdict):
+        if mesgdict["destuser"] in USERS[mesgdict["chatroom"]]["userlist"].keys():
+            await personal_message("SNCTRYZERO", "ANONMESG", mesgdict["mesgtext"], mesgdict["chatroom"],
+                                   USERS[mesgdict["chatroom"]]["userlist"][mesgdict["destuser"]])
+        else:
+            anonfail = "Anonymous dispatch failed - Username not available in the chatroom"
+            await personal_message("SNCTRYZERO", "ANONFAIL", anonfail, mesgdict["chatroom"], self.websocket)
+
+    async def convey_normal_messages(self, mesgdict):
+        print_formatted_text(
+            HTML(
+                "[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + helper_display.wrap_text(str(mesgdict["mesgtext"]))))
+        await notify_mesej(mesgdict["username"], "CONVEYMG", mesgdict["mesgtext"], mesgdict["chatroom"])
+
+    async def handle_broken_connections(self):
+        username, chatroom = self.obtain_username_and_chatroom_of_whoever_left()
+        USERS[chatroom]["userlist"].pop(username)
+        leftmesg = username + " left the chatroom"
+        print_formatted_text(
+            HTML("[" + obtntime() + "] " + "<b>USEREXITED</b> > <red>" + username + "@" + chatroom + "</red>"))
+        await notify_mesej("SNCTRYZERO", "LEFTMESG", leftmesg, chatroom)
+
+
 async def chatroom(websocket, path):
-    if not check_websocket_object_presence(websocket):
+    servoprs = ServerOperations(websocket)
+    if not servoprs.check_websocket_object_presence():
         WAITING_AREA.append(websocket)
     try:
         async for mesgjson in websocket:
-            #print(mesgjson)
             mesgdict = json.loads(mesgjson)
-            #print(mesgdict)
             if mesgdict["operands"] == "CHEKUSER":
-                if mesgdict["chatroom"] in USERS.keys():
-                    if mesgdict["username"] in USERS[mesgdict["chatroom"]]["userlist"].keys():
-                        await websocket.send("True")
-                        await websocket.close()
-                        WAITING_AREA.remove(websocket)
-                    else:
-                        await websocket.send("False")
-                else:
-                    USERS[mesgdict["chatroom"]] = {}
-                    USERS[mesgdict["chatroom"]]["roomownr"] = mesgdict["username"]
-                    USERS[mesgdict["chatroom"]]["userlist"] = {mesgdict["username"]: websocket}
-                    print_formatted_text(HTML("[" + obtntime() + "] " + "<b>NEWROOMEXT</b> > <green>" + mesgdict["username"] + "@" + mesgdict["chatroom"] + "</green>"))
-                    #WAITING_AREA.remove(websocket)
-                    await websocket.send("False")
+                await servoprs.check_specific_username_presence_in_the_chatroom(mesgdict)
             elif mesgdict["operands"] == "IDENTIFY":
-                USERS[mesgdict["chatroom"]]["userlist"][mesgdict["username"]] = websocket
-                WAITING_AREA.remove(websocket)
-                print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USERJOINED</b> > <green>" + mesgdict["username"] + "@" + mesgdict["chatroom"] + "</green>"))
-                jointext = mesgdict["username"] + " joined the chatroom"
-                await notify_mesej("SNCTRYZERO", "USERJOIN", jointext, mesgdict["chatroom"])
+                await servoprs.prove_user_identity_inside_a_chatroom(mesgdict)
             elif mesgdict["operands"] == "LISTUSER":
-                userlist = obtain_list_of_users_from_the_chatroom(mesgdict["chatroom"])
-                await personal_message("SNCTRYZERO", "USERLIST", userlist, mesgdict["chatroom"], websocket)
+                await servoprs.dispatch_list_of_users(mesgdict)
             elif mesgdict["operands"] == "PURRMESG":
-                if mesgdict["destuser"] in USERS[mesgdict["chatroom"]]["userlist"].keys():
-                    await personal_message(mesgdict["username"], "PURRMESG", mesgdict["mesgtext"], mesgdict["chatroom"], USERS[mesgdict["chatroom"]]["userlist"][mesgdict["destuser"]])
-                else:
-                    purrfail = "Whisper failed - Username not available in the chatroom"
-                    await personal_message("SNCTRYZERO", "PURRFAIL", purrfail, mesgdict["chatroom"], websocket)
+                await servoprs.whisper_messages_to_a_specific_username(mesgdict)
             elif mesgdict["operands"] == "KICKUSER":
-                if mesgdict["destuser"] in USERS[mesgdict["chatroom"]]["userlist"].keys():
-                    await personal_message("SNCTRYZERO", "KICKUSER", "", mesgdict["chatroom"], USERS[mesgdict["chatroom"]]["userlist"][mesgdict["destuser"]])
-                else:
-                    kickfail = "Removal failed - Username not available in the chatroom"
-                    await personal_message("SNCTRYZERO", "KICKFAIL", kickfail, mesgdict["chatroom"], websocket)
+                await servoprs.remove_specific_username_from_the_room(mesgdict)
             elif mesgdict["operands"] == "KILLROOM":
                 pass
             elif mesgdict["operands"] == "ANONMESG":
-                if mesgdict["destuser"] in USERS[mesgdict["chatroom"]]["userlist"].keys():
-                    await personal_message("SNCTRYZERO", "ANONMESG", mesgdict["mesgtext"], mesgdict["chatroom"], USERS[mesgdict["chatroom"]]["userlist"][mesgdict["destuser"]])
-                else:
-                    anonfail = "Anonymous dispatch failed - Username not available in the chatroom"
-                    await personal_message("SNCTRYZERO", "ANONFAIL", anonfail, mesgdict["chatroom"], websocket)
+                await servoprs.anonymously_dispatch_message_to_specific_username(mesgdict)
             elif mesgdict["operands"] == "CONVEYMG":
-                print_formatted_text(HTML("[" + obtntime() + "] " + "<b>SNCTRYZERO</b> > " + helper_display.wrap_text(str(mesgjson))))
-                await notify_mesej(mesgdict["username"], "CONVEYMG", mesgdict["mesgtext"], mesgdict["chatroom"])
-            #print(USERS)
+                await servoprs.convey_normal_messages(mesgdict)
     except ConnectionClosedError as EXPT:
-        username, chatroom = obtain_username_and_chatroom_of_whoever_left(websocket)
-        USERS[chatroom]["userlist"].pop(username)
-        leftmesg = username + " left the chatroom"
-        print_formatted_text(HTML("[" + obtntime() + "] " + "<b>USEREXITED</b> > <red>" + username + "@" + chatroom + "</red>"))
-        await notify_mesej("SNCTRYZERO", "LEFTMESG", leftmesg, chatroom)
+        await servoprs.handle_broken_connections()
 
 
 def servenow(netpdata="127.0.0.1", chatport="9696"):
