@@ -82,7 +82,7 @@ async def hello(servaddr, username, chatroom, password):
         try:
             clenoprs = sprtfunc.ClientOperations(username, chatroom, servaddr, password, websocket)
             presence = await clenoprs.check_username_presence()
-            if presence == "False":
+            if presence["operands"] == "ROOMMADE" or presence["operands"] == "USERABST":
                 cphrsuit = textdisp.FernetUtility(password.encode("utf8"))
                 prod = asyncio.get_event_loop().create_task(
                     producer_handler(
@@ -95,11 +95,16 @@ async def hello(servaddr, username, chatroom, password):
                     )
                 )
                 await clenoprs.identify_yourself()
+                genrwork.decorate("SNCTRYZERO", "<green>Welcome to " + presence["chatroom"] + "</green>")
                 await prod
                 await cons
                 asyncio.get_event_loop().run_forever()
-            else:
+            elif presence["operands"] == "USERPRST":
                 genrwork.decorate("SNCTRYZERO", "<red>Username already exist in chatroom</red>")
+                await websocket.close()
+                raise KeyboardInterrupt
+            elif presence["operands"] == "WRNGPASS":
+                genrwork.decorate("SNCTRYZERO", "<red>Provided password does not match the chatroom password</red>")
                 await websocket.close()
                 raise KeyboardInterrupt
         except Exception as EXPT:

@@ -1,5 +1,6 @@
 import json
 import time
+from hashlib import sha256
 
 from . import textdisp
 
@@ -37,11 +38,12 @@ class ClientOperations():
             "username": self.username,
             "operands": "CHEKUSER",
             "mesgtext": "",
+            "passhash": sha256(self.password.encode("utf-8")).hexdigest(),
             "chatroom": self.chatroom
         }
         await self.websocket.send(json.dumps(mesgdict))
         async for recvdata in self.websocket:
-            return recvdata
+            return json.loads(recvdata)
 
     async def identify_yourself(self):
         mesgdict = {

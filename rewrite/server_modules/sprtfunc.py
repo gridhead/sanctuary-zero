@@ -62,19 +62,25 @@ class ServerOperations():
     async def check_specific_username_presence_in_the_chatroom(self, mesgdict):
         if mesgdict["operands"] == "CHEKUSER":
             if mesgdict["chatroom"] in self.USERDICT.keys():
-                if mesgdict["username"] in self.USERDICT[mesgdict["chatroom"]]["userlist"].keys():
-                    await self.websocket.send("True")
+                if mesgdict["passhash"] == self.USERDICT[mesgdict["chatroom"]]["passhash"]:
+                    if mesgdict["username"] in self.USERDICT[mesgdict["chatroom"]]["userlist"].keys():
+                        await personal_message("SNCTRYZERO", "USERPRST", "", mesgdict["chatroom"], self.websocket)
+                        await self.websocket.close()
+                        self.WAITAREA.remove(self.websocket)
+                    else:
+                        await personal_message("SNCTRYZERO", "USERABST", "", mesgdict["chatroom"], self.websocket)
+                else:
+                    await personal_message("SNCTRYZERO", "WRNGPASS", "", mesgdict["chatroom"], self.websocket)
                     await self.websocket.close()
                     self.WAITAREA.remove(self.websocket)
-                else:
-                    await self.websocket.send("False")
             else:
                 self.USERDICT[mesgdict["chatroom"]] = {}
                 self.USERDICT[mesgdict["chatroom"]]["roomownr"] = mesgdict["username"]
+                self.USERDICT[mesgdict["chatroom"]]["passhash"] = mesgdict["passhash"]
                 self.USERDICT[mesgdict["chatroom"]]["userlist"] = {mesgdict["username"]: self.websocket}
                 gnrlwork.decorate("<b>NEWROOMEXT</b>", "<blue>" + mesgdict["username"] + " created " + mesgdict["chatroom"] + "</blue>")
                 #WAITAREA.remove(websocket)
-                await self.websocket.send("False")
+                await personal_message("SNCTRYZERO", "ROOMMADE", "", mesgdict["chatroom"], self.websocket)
 
     async def prove_user_identity_inside_a_chatroom(self, mesgdict):
         self.USERDICT[mesgdict["chatroom"]]["userlist"][mesgdict["username"]] = self.websocket
