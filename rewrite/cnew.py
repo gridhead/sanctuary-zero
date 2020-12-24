@@ -9,13 +9,11 @@ import websockets
 from client_modules import modutils, sprtfunc, textdisp
 from prompt_toolkit import HTML, PromptSession, print_formatted_text
 from prompt_toolkit.patch_stdout import patch_stdout
-from utils.helper_display import HelperDisplay
 
 
 genrwork = textdisp.GeneralWorking()
 
 sess = PromptSession()
-helper_display = HelperDisplay()
 
 
 async def consumer_handler(cphrsuit, websocket, username):
@@ -38,13 +36,15 @@ async def consumer_handler(cphrsuit, websocket, username):
                 genrwork.simple_decorate(recvdict["username"], cphrsuit.decrtext(recvdict["mesgtext"]))
             elif recvdict["operands"] == "KICKFAIL":
                 genrwork.simple_decorate(recvdict["username"], recvdict["mesgtext"])
+            elif recvdict["operands"] == "KICKNOTE":
+                genrwork.simple_decorate(recvdict["username"], recvdict["mesgtext"])
             elif recvdict["operands"] == "KICKUSER":
                 genrwork.simple_decorate(recvdict["username"], "You were removed from the chatroom")
             elif recvdict["operands"] == "USERLIST":
                 genrwork.simple_decorate(recvdict["username"], "Following users are connected")
                 userlist = recvdict["mesgtext"].split()
                 for indx in userlist:
-                    print(" " * 24 + helper_display.wrap_conversational_text(indx))
+                    print(" " * 24 + textdisp.HelperDisplay().wrap_conversational_text(indx))
         except Exception as EXPT:
             pass
 
