@@ -104,17 +104,22 @@ class ServerOperations():
             await personal_message("SNCTRYZERO", "PURRFAIL", purrfail, mesgdict["chatroom"], self.websocket)
 
     async def remove_specific_username_from_the_room(self, mesgdict):
-        if mesgdict["destuser"] in self.USERDICT[mesgdict["chatroom"]]["userlist"].keys():
-            gnrlwork.decorate("<b>KICKPASSED</b>", "<red>" + mesgdict["username"] + " removed " + mesgdict["destuser"] + " from " + mesgdict["chatroom"] + "</red>")
-            await personal_message("SNCTRYZERO", "KICKUSER", "", mesgdict["chatroom"], self.USERDICT[mesgdict["chatroom"]]["userlist"][mesgdict["destuser"]])
-            await self.USERDICT[mesgdict["chatroom"]]["userlist"][mesgdict["destuser"]].close()
-            self.USERDICT[mesgdict["chatroom"]]["userlist"].pop(mesgdict["destuser"])
-            rmovnote = mesgdict["destuser"] + " was removed from the chatroom"
-            await notify_mesej(mesgdict["username"], "KICKNOTE", rmovnote, mesgdict["chatroom"], self.USERDICT)
+        if mesgdict["username"] == self.USERDICT[mesgdict["chatroom"]]["roomownr"]:
+            if mesgdict["destuser"] in self.USERDICT[mesgdict["chatroom"]]["userlist"].keys():
+                gnrlwork.decorate("<b>KICKPASSED</b>", "<red>" + mesgdict["username"] + " removed " + mesgdict["destuser"] + " from " + mesgdict["chatroom"] + "</red>")
+                await personal_message("SNCTRYZERO", "KICKUSER", "", mesgdict["chatroom"], self.USERDICT[mesgdict["chatroom"]]["userlist"][mesgdict["destuser"]])
+                await self.USERDICT[mesgdict["chatroom"]]["userlist"][mesgdict["destuser"]].close()
+                self.USERDICT[mesgdict["chatroom"]]["userlist"].pop(mesgdict["destuser"])
+                rmovnote = mesgdict["destuser"] + " was removed from the chatroom"
+                await notify_mesej(mesgdict["username"], "KICKNOTE", rmovnote, mesgdict["chatroom"], self.USERDICT)
+            else:
+                gnrlwork.decorate("<b>KICKFAILED</b>", "<red>" + mesgdict["username"] + " failed to remove users from " + mesgdict["chatroom"] + "</red>")
+                kickfail = "Removal failed - Username not available in the chatroom"
+                await personal_message("SNCTRYZERO", "KICKFAIL", kickfail, mesgdict["chatroom"], self.websocket)
         else:
-            gnrlwork.decorate("<b>KICKFAILED</b>", "<red>" + mesgdict["username"] + " failed to remove users from " + mesgdict["chatroom"] + "</red>")
-            kickfail = "Removal failed - Username not available in the chatroom"
-            await personal_message("SNCTRYZERO", "KICKFAIL", kickfail, mesgdict["chatroom"], self.websocket)
+            gnrlwork.decorate("<b>KICKUNAUTH</b>", "<red>" + mesgdict["username"] + " from " + mesgdict["chatroom"] + " attempted unauthorized user removal</red>")
+            kickauth = "Removal failed - You are not authorized to remove users"
+            await personal_message("SNCTRYZERO", "KICKFAIL", kickauth, mesgdict["chatroom"], self.websocket)
 
     async def anonymously_dispatch_message_to_specific_username(self, mesgdict):
         if mesgdict["destuser"] in self.USERDICT[mesgdict["chatroom"]]["userlist"].keys():
