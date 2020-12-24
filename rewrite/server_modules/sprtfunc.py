@@ -107,7 +107,7 @@ class ServerOperations():
         if mesgdict["username"] == self.USERDICT[mesgdict["chatroom"]]["roomownr"]:
             if mesgdict["destuser"] in self.USERDICT[mesgdict["chatroom"]]["userlist"].keys():
                 gnrlwork.decorate("<b>KICKPASSED</b>", "<red>" + mesgdict["username"] + " removed " + mesgdict["destuser"] + " from " + mesgdict["chatroom"] + "</red>")
-                await personal_message("SNCTRYZERO", "KICKUSER", "", mesgdict["chatroom"], self.USERDICT[mesgdict["chatroom"]]["userlist"][mesgdict["destuser"]])
+                await personal_message("SNCTRYZERO", "KICKUSER", "You were removed from the chatroom", mesgdict["chatroom"], self.USERDICT[mesgdict["chatroom"]]["userlist"][mesgdict["destuser"]])
                 await self.USERDICT[mesgdict["chatroom"]]["userlist"][mesgdict["destuser"]].close()
                 self.USERDICT[mesgdict["chatroom"]]["userlist"].pop(mesgdict["destuser"])
                 rmovnote = mesgdict["destuser"] + " was removed from the chatroom"

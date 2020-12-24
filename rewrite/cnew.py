@@ -39,7 +39,7 @@ async def consumer_handler(cphrsuit, websocket, username):
             elif recvdict["operands"] == "KICKNOTE":
                 genrwork.simple_decorate(recvdict["username"], recvdict["mesgtext"])
             elif recvdict["operands"] == "KICKUSER":
-                genrwork.simple_decorate(recvdict["username"], "You were removed from the chatroom")
+                genrwork.simple_decorate(recvdict["username"], recvdict["mesgtext"])
             elif recvdict["operands"] == "USERLIST":
                 genrwork.simple_decorate(recvdict["username"], "Following users are connected")
                 userlist = recvdict["mesgtext"].split()
