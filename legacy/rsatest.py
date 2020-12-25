@@ -25,7 +25,6 @@ def encryption_and_decryption():
 # SIGNING AND VERIFICATION
 publckey, privtkey = rsa.newkeys(512)
 
-
 byte = strg.encode("utf-8")
 hush = rsa.compute_hash(byte, 'SHA-1')
 
