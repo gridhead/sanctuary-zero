@@ -60,13 +60,17 @@ async def producer_handler(cphrsuit, clenoprs):
                 mesgtext = await sess.prompt_async(
                     lambda: "[" + genrwork.obtntime() + "] " +
                             genrwork.formusnm(clenoprs.username) + " > ",
-                    bottom_toolbar=footelem, validator=modutils.emtyfind(),
+                    bottom_toolbar=footelem,
+                    validator=modutils.emtyfind(),
                     refresh_interval=0.5,
                     prompt_continuation=lambda width, line_number, is_soft_wrap: " " * width)
             if mesgtext.strip() == "/list":
                 await clenoprs.fetch_list_of_users_connected_to_chatroom()
             elif mesgtext.strip() == "/save":
                 clenoprs.save_connection_profile_to_file()
+            elif mesgtext.strip() == "/wipe":
+                click.clear()
+                print_formatted_text("\n")
             elif mesgtext.strip() == "/ownr":
                 await clenoprs.fetch_owner_name_of_the_chatroom()
             elif mesgtext.strip().split()[0] == "/kick":
