@@ -3,6 +3,7 @@ import secrets
 import textwrap
 import time
 
+from click import style
 from cryptography.fernet import Fernet
 from prompt_toolkit import HTML, print_formatted_text
 
@@ -63,10 +64,10 @@ class HelperDisplay:
 
 class GeneralWorking():
     def decorate(self, predname, predmesg):
-        print_formatted_text(HTML("[" + self.obtntime() + "] " + self.formusnm(predname) + " > " + HelperDisplay().wrap_conversational_text(predmesg)))
+        print_formatted_text(HTML("[" + self.obtntime() + "] " + "<b>" + self.formusnm(predname) + "</b>" + " > " + HelperDisplay().wrap_conversational_text(predmesg)))
 
     def simple_decorate(self, predname, predmesg):
-        print("[" + self.obtntime() + "] " + self.formusnm(predname) + " > " + HelperDisplay().wrap_conversational_text(predmesg))
+        print("[" + self.obtntime() + "] " + style(self.formusnm(predname), bold=True) + " > " + HelperDisplay().wrap_conversational_text(predmesg))
 
     def obtntime(self):
         timestmp = time.localtime()

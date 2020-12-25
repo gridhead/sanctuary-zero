@@ -58,8 +58,8 @@ async def producer_handler(cphrsuit, clenoprs):
         while True:
             with patch_stdout():
                 mesgtext = await sess.prompt_async(
-                    lambda: "[" + genrwork.obtntime() + "] " +
-                            genrwork.formusnm(clenoprs.username) + " > ",
+                    lambda: HTML("[" + genrwork.obtntime() + "] " +
+                            "<b>" + genrwork.formusnm(clenoprs.username) + "</b>" + " > "),
                     bottom_toolbar=footelem,
                     validator=modutils.emtyfind(),
                     refresh_interval=0.5,
