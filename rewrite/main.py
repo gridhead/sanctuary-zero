@@ -1,8 +1,33 @@
-import asyncio, websockets, sys, click
-from prompt_toolkit import print_formatted_text
-from websockets.exceptions import ConnectionClosedError
+"""
+##########################################################################
+*
+*   Copyright © 2019-2020 Akashdeep Dhar <t0xic0der@fedoraproject.org>
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+##########################################################################
+"""
+
+import asyncio
 import json
-from server_modules import textdisp, sprtfunc, modutils
+import sys
+
+import click
+import websockets
+from prompt_toolkit import print_formatted_text
+from server_modules import modutils, sprtfunc, textdisp
+from websockets.exceptions import ConnectionClosedError
 
 
 WAITAREA = []
@@ -10,39 +35,6 @@ WAITAREA = []
 USERDICT = {}
 
 gnrlwork = textdisp.GeneralWorking()
-
-'''
-USERDICT = {
-    "DEADCAFE": {
-        "roomownr": "t0xic0der",
-        "passhash": "",
-        "userlist": {
-            "t0xic0der": <websockets.server.WebSocketServerProtocol object at 0x7fd58a985580>,
-            "m3x1c0": <websockets.server.WebSocketServerProtocol object at 0x7fd58a9d8dc0>
-        }
-    }
-}
-'''
-
-'''
-# FROM CLIENT TO SERVER
-MESSAGE_STRUCTURE = {
-    "username": "t0xic0der",
-    "operands": "CHEKUSER",
-    "mesgtext": "",
-    "chatroom": "DEADCAFE",
-}
-'''
-
-'''
-# FROM SERVER TO CLIENT
-MESSAGE_STRUCTURE = {
-    "username": "t0xic0der",
-    "operands": "CHEKUSER",
-    "mesgtext": "",
-    "chatroom": "DEADCAFE",
-}
-'''
 
 
 async def chatroom(websocket, path):
