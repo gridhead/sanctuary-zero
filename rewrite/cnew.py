@@ -38,6 +38,10 @@ async def consumer_handler(cphrsuit, websocket, username):
                 genrwork.simple_decorate(recvdict["username"], recvdict["mesgtext"])
             elif recvdict["operands"] == "KICKNOTE":
                 genrwork.simple_decorate(recvdict["username"], recvdict["mesgtext"])
+            elif recvdict["operands"] == "STOPNOTE":
+                genrwork.simple_decorate(recvdict["username"], recvdict["mesgtext"])
+            elif recvdict["operands"] == "STOPFAIL":
+                genrwork.simple_decorate(recvdict["username"], recvdict["mesgtext"])
             elif recvdict["operands"] == "KICKUSER":
                 genrwork.simple_decorate(recvdict["username"], recvdict["mesgtext"])
             elif recvdict["operands"] == "FETCOWNR":
@@ -66,6 +70,8 @@ async def producer_handler(cphrsuit, clenoprs):
                     prompt_continuation=lambda width, line_number, is_soft_wrap: " " * width)
             if mesgtext.strip() == "/list":
                 await clenoprs.fetch_list_of_users_connected_to_chatroom()
+            elif mesgtext.strip() == "/stop":
+                await clenoprs.initiate_chatroom_shutdown()
             elif mesgtext.strip() == "/save":
                 clenoprs.save_connection_profile_to_file()
             elif mesgtext.strip() == "/wipe":
