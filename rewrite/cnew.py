@@ -71,6 +71,8 @@ async def producer_handler(cphrsuit, clenoprs):
             elif mesgtext.strip() == "/wipe":
                 click.clear()
                 print_formatted_text("\n")
+            elif mesgtext.strip() == "/help":
+                clenoprs.show_help_and_support_topics()
             elif mesgtext.strip() == "/ownr":
                 await clenoprs.fetch_owner_name_of_the_chatroom()
             elif mesgtext.strip().split()[0] == "/kick":

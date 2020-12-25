@@ -2,6 +2,8 @@ import json
 import time
 from hashlib import sha256
 
+from click import style
+
 from . import textdisp
 
 
@@ -63,6 +65,21 @@ class ClientOperations():
         }
         senddata = json.dumps(mesgdict)
         await self.websocket.send(senddata)
+
+    def show_help_and_support_topics(self):
+        helplist = [
+            style("/list", bold=True) + " - " + "Fetch the list of users connected to chatroom",
+            style("/save", bold=True) + " - " + "Save current connection to a file",
+            style("/wipe", bold=True) + " - " + "Clear the client-side screen buffer",
+            style("/ownr", bold=True) + " - " + "Fetch the owner name of the chatroom",
+            style("/purr <username> <mesgtext>", bold=True) + " - " + "Whisper messages to a specific user in the chatroom",
+            style("/anon <username> <mesgtext>", bold=True) + " - " + "Anonymously dispatch messages to a specific user",
+            style("/kick <username>", bold=True) + " - " + "Remove a user from the chatroom",
+            style("/help", bold=True) + " - " + "Show help and support topics"
+        ]
+        genrwork.simple_decorate("SNCTRYZERO", "Following options are at your disposal")
+        for indx in helplist:
+            print(" " * 24 + textdisp.HelperDisplay().wrap_conversational_text(indx))
 
     async def fetch_owner_name_of_the_chatroom(self):
         mesgdict = {
