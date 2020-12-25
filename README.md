@@ -37,6 +37,46 @@ Jump right into the project wiki to know more about it.
 1. GNU/Linux (Tested on Arch Linux, Fedora 32, Ubuntu 20.04)
 2. Microsoft Windows (Tested on Windows 10 Build 1909)
 
+## Data Structure
+
+### **`USERDICT`**
+
+```json
+{
+    "DEADCAFE": {
+        "roomownr": "t0xic0der",
+        "passhash": "",
+        "userlist": {
+            "t0xic0der": <websockets.server.WebSocketServerProtocol object at 0x7fd58a985580>,
+            "m3x1c0": <websockets.server.WebSocketServerProtocol object at 0x7fd58a9d8dc0>
+        }
+    }
+}
+```
+
+### **`MESGJSON`**
+
+```json
+{
+    "username": "t0xic0der",
+    "operands": "CHEKUSER",
+    "mesgtext": "",
+    "chatroom": "DEADCAFE"
+}
+```
+
+### **`CONNPROF`**
+
+```json
+{
+    "username": "t0xic0der",
+    "servaddr": "ws://localhost:6969/",
+    "chatroom": "DEADCAFE",
+    "password": "otylZNtGrvucuDts6EUkiOwqYF-atsXD054clo5-lbc=",
+    "timestmp": "Fri Dec 25 16:36:19 2020"
+}
+```
+
 ## Screenshots
 ### Server
 ![](pictures/back.png)
