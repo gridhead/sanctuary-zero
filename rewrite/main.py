@@ -77,11 +77,11 @@ def servenow(netpdata="127.0.0.1", chatport="9696"):
     try:
         start_server = websockets.serve(chatroom, netpdata, int(chatport))
         asyncio.get_event_loop().run_until_complete(start_server)
-        gnrlwork.decorate("<b>SNCTRYZERO</b>", "<green>SNCTRYZERO server was started up on 'ws://" + str(netpdata) + ":" + str(chatport) + "/'</green>")
+        gnrlwork.decorate("SNCTRYZERO", "<green>SNCTRYZERO server was started up on 'ws://" + str(netpdata) + ":" + str(chatport) + "/'</green>")
         asyncio.get_event_loop().run_forever()
     except KeyboardInterrupt:
         print("")
-        gnrlwork.decorate("<b>SNCTRYZERO</b>", "<red><b>SNCTRYZERO server was shut down</b></red>")
+        gnrlwork.decorate("SNCTRYZERO", "<red><b>SNCTRYZERO server was shut down</b></red>")
         sys.exit()
 
 
@@ -94,21 +94,21 @@ def mainfunc(chatport, netprotc):
     try:
         click.clear()
         print_formatted_text("\n")
-        gnrlwork.decorate("<b>SNCTRYZERO</b>", "<green><b>Starting SNCTRYZERO server v30102020...</b></green>")
-        gnrlwork.decorate("<b>SNCTRYZERO</b>", "Know more about the project at https://github.com/t0xic0der/sanctuary-zero/wiki")
-        gnrlwork.decorate("<b>SNCTRYZERO</b>", "Find folks we're thankful to at https://github.com/t0xic0der/sanctuary-zero/graphs/contributors")
+        gnrlwork.decorate("SNCTRYZERO", "<green><b>Starting SNCTRYZERO server v30102020...</b></green>")
+        gnrlwork.decorate("SNCTRYZERO", "Know more about the project at https://github.com/t0xic0der/sanctuary-zero/wiki")
+        gnrlwork.decorate("SNCTRYZERO", "Find folks we're thankful to at https://github.com/t0xic0der/sanctuary-zero/graphs/contributors")
         netpdata = ""
         if netprotc == "ipprotv6":
-            gnrlwork.decorate("<b>SNCTRYZERO</b>", "<green>IP version : 6</green>")
+            gnrlwork.decorate("SNCTRYZERO", "<green>IP version : 6</green>")
             netpdata = "::"
-            gnrlwork.decorate("<b>SNCTRYZERO</b>", "<green>IP address : " + modutils.obtain_reachable_ip_address(6) + "</green>")
+            gnrlwork.decorate("SNCTRYZERO", "<green>IP address : " + modutils.obtain_reachable_ip_address(6) + "</green>")
         elif netprotc == "ipprotv4":
-            gnrlwork.decorate("<b>SNCTRYZERO</b>", "<green>IP version : 4</green>")
+            gnrlwork.decorate("SNCTRYZERO", "<green>IP version : 4</green>")
             netpdata = "0.0.0.0"
-            gnrlwork.decorate("<b>SNCTRYZERO</b>", "<green>IP address : " + modutils.obtain_reachable_ip_address(4) + "</green>")
+            gnrlwork.decorate("SNCTRYZERO", "<green>IP address : " + modutils.obtain_reachable_ip_address(4) + "</green>")
         servenow(netpdata, chatport)
     except OSError:
-        gnrlwork.decorate("<b>SNCTRYZERO</b>", "<red><b>The server could not be started up</b></red>")
+        gnrlwork.decorate("SNCTRYZERO", "<red><b>The server could not be started up</b></red>")
 
 
 if __name__ == "__main__":

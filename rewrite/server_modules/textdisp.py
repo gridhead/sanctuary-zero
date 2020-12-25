@@ -50,7 +50,7 @@ class HelperDisplay:
 
 class GeneralWorking():
     def decorate(self, predname, predmesg):
-        print_formatted_text(HTML("[" + self.obtntime() + "] " + predname + " > " + HelperDisplay().wrap_conversational_text(predmesg)))
+        print_formatted_text(HTML("[" + self.obtntime() + "] " + "<b>" + self.formusnm(predname) + "</b>" + " > " + HelperDisplay().wrap_conversational_text(predmesg)))
 
     def obtntime(self):
         timestmp = time.localtime()
