@@ -127,6 +127,19 @@ class ServerOperations():
             kickauth = "Removal failed - You are not authorized to remove users"
             await personal_message("SNCTRYZERO", "KICKFAIL", kickauth, mesgdict["chatroom"], self.websocket)
 
+    async def initiate_chatroom_shutdown(self, mesgdict):
+        if mesgdict["username"] == self.USERDICT[mesgdict["chatroom"]]["roomownr"]:
+            gnrlwork.decorate("STOPPASSED", "<purple>" + mesgdict["username"] + " shut down " + mesgdict["chatroom"] + "</purple>")
+            stopnote = "The chatroom was shut down and all users were removed"
+            await notify_mesej("SNCTRYZERO", "STOPNOTE", stopnote, mesgdict["chatroom"], self.USERDICT)
+            for userindx in self.USERDICT[mesgdict["chatroom"]]["userlist"].keys():
+                await self.USERDICT[mesgdict["chatroom"]]["userlist"][userindx].close()
+            self.USERDICT.pop(mesgdict["chatroom"])
+        else:
+            gnrlwork.decorate("STOPUNAUTH", "<purple>" + mesgdict["username"] + " from " + mesgdict["chatroom"] + " attempted unauthorized chatroom shutdown</purple>")
+            stopauth = "Shutdown failed - You are not authorized to shutdown the chatroom"
+            await personal_message("SNCTRYZERO", "STOPFAIL", stopauth, mesgdict["chatroom"], self.websocket)
+
     async def anonymously_dispatch_message_to_specific_username(self, mesgdict):
         if mesgdict["destuser"] in self.USERDICT[mesgdict["chatroom"]]["userlist"].keys():
             gnrlwork.decorate("ANONPASSED", "<teal>" + mesgdict["username"] + " from " + mesgdict["chatroom"] + " anonymously dispatched messages to " + mesgdict["destuser"] + "</teal>")

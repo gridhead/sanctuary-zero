@@ -56,6 +56,16 @@ class ClientOperations():
         }
         await self.websocket.send(json.dumps(mesgdict))
 
+    async def initiate_chatroom_shutdown(self):
+        mesgdict = {
+            "username": self.username,
+            "operands": "STOPROOM",
+            "mesgtext": "",
+            "chatroom": self.chatroom,
+        }
+        senddata = json.dumps(mesgdict)
+        await self.websocket.send(senddata)
+
     async def fetch_list_of_users_connected_to_chatroom(self):
         mesgdict = {
             "username": self.username,
@@ -72,6 +82,7 @@ class ClientOperations():
             style("/save", bold=True) + " - " + "Save current connection to a file",
             style("/wipe", bold=True) + " - " + "Clear the client-side screen buffer",
             style("/ownr", bold=True) + " - " + "Fetch the owner name of the chatroom",
+            style("/stop", bold=True) + " - " + "Shut down the chatroom and remove all users",
             style("/purr <username> <mesgtext>", bold=True) + " - " + "Whisper messages to a specific user in the chatroom",
             style("/anon <username> <mesgtext>", bold=True) + " - " + "Anonymously dispatch messages to a specific user",
             style("/kick <username>", bold=True) + " - " + "Remove a user from the chatroom",
