@@ -64,6 +64,16 @@ class ClientOperations():
         senddata = json.dumps(mesgdict)
         await self.websocket.send(senddata)
 
+    async def fetch_owner_name_of_the_chatroom(self):
+        mesgdict = {
+            "username": self.username,
+            "operands": "FETCOWNR",
+            "mesgtext": "",
+            "chatroom": self.chatroom,
+        }
+        senddata = json.dumps(mesgdict)
+        await self.websocket.send(senddata)
+
     async def remove_username_from_the_chatroom(self, mesgtext):
         if len(mesgtext.strip().split()) == 2:
             destuser = mesgtext.strip().split()[1]

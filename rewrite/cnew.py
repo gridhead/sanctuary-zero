@@ -40,6 +40,8 @@ async def consumer_handler(cphrsuit, websocket, username):
                 genrwork.simple_decorate(recvdict["username"], recvdict["mesgtext"])
             elif recvdict["operands"] == "KICKUSER":
                 genrwork.simple_decorate(recvdict["username"], recvdict["mesgtext"])
+            elif recvdict["operands"] == "FETCOWNR":
+                genrwork.simple_decorate(recvdict["username"], recvdict["mesgtext"])
             elif recvdict["operands"] == "USERLIST":
                 genrwork.simple_decorate(recvdict["username"], "Following users are connected")
                 userlist = recvdict["mesgtext"].split()
@@ -65,6 +67,8 @@ async def producer_handler(cphrsuit, clenoprs):
                 await clenoprs.fetch_list_of_users_connected_to_chatroom()
             elif mesgtext.strip() == "/save":
                 clenoprs.save_connection_profile_to_file()
+            elif mesgtext.strip() == "/ownr":
+                await clenoprs.fetch_owner_name_of_the_chatroom()
             elif mesgtext.strip().split()[0] == "/kick":
                 await clenoprs.remove_username_from_the_chatroom(mesgtext)
             elif mesgtext.strip().split()[0] == "/purr":

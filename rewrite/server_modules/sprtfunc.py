@@ -91,8 +91,14 @@ class ServerOperations():
 
     async def dispatch_list_of_users(self, mesgdict):
         userlist = obtain_list_of_users_from_the_chatroom(mesgdict["chatroom"], self.USERDICT)
-        gnrlwork.decorate("<b>LISTRQSTED</b>", "<orange>" + mesgdict["username"] + " from " + mesgdict["chatroom"] + " requested participant list</orange>")
+        gnrlwork.decorate("<b>LISTRQSTED</b>", "<orange>" + mesgdict["username"] + " from " + mesgdict["chatroom"] + " requested for participant list</orange>")
         await personal_message("SNCTRYZERO", "USERLIST", userlist, mesgdict["chatroom"], self.websocket)
+
+    async def fetch_owner_name_of_the_chatroom(self, mesgdict):
+        ownrname = self.USERDICT[mesgdict["chatroom"]]["roomownr"]
+        gnrlwork.decorate("<b>OWNRRQSTED</b>", "<olive>" + mesgdict["username"] + " from " + mesgdict["chatroom"] + " requested for chatroom owner name</olive>")
+        ownrmesg = ownrname + " is the owner of " + mesgdict["chatroom"]
+        await personal_message("SNCTRYZERO", "FETCOWNR", ownrmesg, mesgdict["chatroom"], self.websocket)
 
     async def whisper_messages_to_a_specific_username(self, mesgdict):
         if mesgdict["destuser"] in self.USERDICT[mesgdict["chatroom"]]["userlist"].keys():

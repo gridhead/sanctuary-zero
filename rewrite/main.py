@@ -63,6 +63,8 @@ async def chatroom(websocket, path):
                 await sprtfunc.ServerOperations(USERDICT, WAITAREA, websocket).remove_specific_username_from_the_room(mesgdict)
             elif mesgdict["operands"] == "KILLROOM":
                 pass
+            elif mesgdict["operands"] == "FETCOWNR":
+                await sprtfunc.ServerOperations(USERDICT, WAITAREA, websocket).fetch_owner_name_of_the_chatroom(mesgdict)
             elif mesgdict["operands"] == "ANONMESG":
                 await sprtfunc.ServerOperations(USERDICT, WAITAREA, websocket).anonymously_dispatch_message_to_specific_username(mesgdict)
             elif mesgdict["operands"] == "CONVEYMG":
