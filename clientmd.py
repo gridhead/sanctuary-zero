@@ -100,6 +100,8 @@ async def producer_handler(cphrsuit, clenoprs):
                 print_formatted_text("\n")
             elif mesgtext.strip() == "/help":
                 clenoprs.show_help_and_support_topics()
+            elif mesgtext.strip() == "/cont":
+                clenoprs.print_contributors_info()
             elif mesgtext.strip() == "/ownr":
                 await clenoprs.fetch_owner_name_of_the_chatroom()
             elif mesgtext.strip().split()[0] == "/kick":
@@ -153,7 +155,7 @@ async def hello(servaddr, username, chatroom, password):
 def read_connection_profile(connprof):
     click.clear()
     print_formatted_text("\n")
-    genrwork.decorate("SNCTRYZERO", "<b><seagreen>Starting Sanctuary ZERO v30102020 up...</seagreen></b>")
+    genrwork.decorate("SNCTRYZERO", "<b><seagreen>Starting SNCTRYZERO Client v25122020 up...</seagreen></b>")
     try:
         with open(connprof) as fileobjc:
             conndata = json.load(fileobjc)
@@ -184,8 +186,8 @@ def read_connection_profile(connprof):
 
 
 @click.command()
-@click.option("-f", "--connprof", "connprof", help="Enter the location of the connection profile file", required=True)
-@click.version_option(version="30102020", prog_name="SNCTRYZERO client")
+@click.option("-f", "--connprof", "connprof", help="Enter the location of the connection profile file.", required=True)
+@click.version_option(version="25122020", prog_name="SNCTRYZERO client")
 def mainfunc(connprof):
     try:
         read_connection_profile(connprof)

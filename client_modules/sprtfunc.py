@@ -43,7 +43,6 @@ class ClientOperations():
         try:
             filename = self.username + "_" + self.chatroom + ".conf"
             connsave = {
-                "profvers": "24122020",
                 "username": self.username,
                 "servaddr": self.servaddr,
                 "chatroom": self.chatroom,
@@ -107,9 +106,28 @@ class ClientOperations():
             style("/purr <username> <mesgtext>", bold=True) + " - " + "Whisper messages to a specific user in the chatroom",
             style("/anon <username> <mesgtext>", bold=True) + " - " + "Anonymously dispatch messages to a specific user",
             style("/kick <username>", bold=True) + " - " + "Remove a user from the chatroom",
+            style("/cont", bold=True) + " - " + "Know more about the folks we are thankful to",
             style("/help", bold=True) + " - " + "Show help and support topics"
         ]
         genrwork.simple_decorate("SNCTRYZERO", "Following options are at your disposal")
+        for indx in helplist:
+            print(" " * 24 + textdisp.HelperDisplay().wrap_conversational_text(indx))
+
+    def print_contributors_info(self):
+        helplist = [
+            style("t0xic0der", bold=True) + " " + "(Akashdeep Dhar)",
+            style("Vivek-blip", bold=True) + " " + "(Vivek M Nair)",
+            style("shivangswain", bold=True) + " " + "(Shivang Swain)",
+            style("nat236919", bold=True) + " " + "(Nuttaphat Arunoprayoch)",
+            style("vinmay", bold=True) + " ",
+            style("ahmadsyafrudin", bold=True) + " " + "(rudi)",
+            style("s0umadeep", bold=True) + " " + "(Soumadeep Dhar)",
+            style("pranavpatel3012", bold=True) + " " + "(Pranav Patel)",
+            style("melsaa", bold=True) + " ",
+            style("gitarthasarma", bold=True) + " " + "(Gitartha Kumar Sarma)",
+            style("gilmouta", bold=True) + " ",
+        ]
+        genrwork.simple_decorate("SNCTRYZERO", "Following are the folks we are thankful to.")
         for indx in helplist:
             print(" " * 24 + textdisp.HelperDisplay().wrap_conversational_text(indx))
 

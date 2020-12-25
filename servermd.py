@@ -78,15 +78,15 @@ def servenow(netpdata="127.0.0.1", chatport="9696"):
 
 
 @click.command()
-@click.option("-c", "--chatport", "chatport", help="Set the port value for the server [0-65536]", required=True)
-@click.option("-6", "--ipprotv6", "netprotc", flag_value="ipprotv6", help="Start the server on an IPv6 address", required=True)
-@click.option("-4", "--ipprotv4", "netprotc", flag_value="ipprotv4", help="Start the server on an IPv4 address", required=True)
-@click.version_option(version="30102020", prog_name="SNCTRYZERO Server")
+@click.option("-c", "--chatport", "chatport", help="Set the port value for the server. [0-65536]", required=True)
+@click.option("-6", "--ipprotv6", "netprotc", flag_value="ipprotv6", help="Start the server on an IPv6 address.", required=True)
+@click.option("-4", "--ipprotv4", "netprotc", flag_value="ipprotv4", help="Start the server on an IPv4 address.", required=True)
+@click.version_option(version="25122020", prog_name="SNCTRYZERO Server")
 def mainfunc(chatport, netprotc):
     try:
         click.clear()
         print_formatted_text("\n")
-        gnrlwork.decorate("SNCTRYZERO", "<green><b>Starting SNCTRYZERO server v30102020...</b></green>")
+        gnrlwork.decorate("SNCTRYZERO", "<green><b>Starting SNCTRYZERO Server v25122020...</b></green>")
         gnrlwork.decorate("SNCTRYZERO", "Know more about the project at https://github.com/t0xic0der/sanctuary-zero/wiki")
         gnrlwork.decorate("SNCTRYZERO", "Find folks we're thankful to at https://github.com/t0xic0der/sanctuary-zero/graphs/contributors")
         netpdata = ""
