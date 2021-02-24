@@ -1,6 +1,6 @@
 cffi==1.14.3
 click==7.1.2
-cryptography==3.2.1
+cryptography==3.3.2
 prompt-toolkit==3.0.8
 pycparser==2.20
 six==1.15.0
